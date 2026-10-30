@@ -32,3 +32,20 @@ export function badgesFor(surface: ProfileSurface, tiers: IdentityTiers, opts: {
     showLegalName: false,
   };
 }
+
+export function isLegalProvider(provider: IdentityProviderId | string | null): boolean {
+  return Boolean(provider) && LEGAL_PROVIDERS.includes(provider as IdentityProviderId);
+}
+
+/**
+ * What a new successful proof does: "first" = first verification, "upgrade" = tier 1 account adds a legal
+ * identity, "reject" = nothing to gain (already tier 2, or another tier-1 proof on a verified account).
+ */
+export function verificationDecision(
+  current: { isVerified: boolean; tier2LegalIdentity: boolean },
+  provider: IdentityProviderId | string,
+): "first" | "upgrade" | "reject" {
+  if (!current.isVerified) return "first";
+  if (!current.tier2LegalIdentity && isLegalProvider(provider)) return "upgrade";
+  return "reject";
+}
