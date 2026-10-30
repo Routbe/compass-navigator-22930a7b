@@ -42,7 +42,8 @@ export function ContactFormCard({
       if (res.ok) {
         setDone(true);
         toast.success(res.message);
-        if (config.redirectUrl) window.location.href = config.redirectUrl;
+        const next = safeFormRedirect(config.redirectUrl);
+        if (next) window.location.assign(next);
       } else {
         toast.error(res.message);
       }
@@ -110,4 +111,20 @@ export function ContactFormCard({
       )}
     </div>
   );
+}
+
+/**
+ * Owner-configured "after submit" redirects may only stay on this site; an external
+ * address goes through the /go confirmation page so visitors see where they are sent.
+ */
+function safeFormRedirect(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  try {
+    const u = new URL(raw, window.location.origin);
+    if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+    if (u.origin === window.location.origin) return u.pathname + u.search + u.hash;
+    return `/go?w=${encodeURIComponent(u.toString())}`;
+  } catch {
+    return null;
+  }
 }
