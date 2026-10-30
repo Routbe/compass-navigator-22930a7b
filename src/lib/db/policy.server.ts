@@ -40,7 +40,7 @@ const TABLES: Record<string, Access> = {
   notifications: { ops: ["select", "update", "delete"], owner: "user_id" },
   custom_domains: { ops: ["select", "insert", "update", "delete"], owner: "user_id" },
   email_aliases: { ops: ["select"], owner: "user_id" },
-  api_keys: { ops: ["select", "delete"], owner: "user_id" },
+  api_keys: { ops: ["select", "delete"], owner: "user_id", workspaceScoped: true },
   verification_payments: { ops: ["select"], owner: "user_id" },
   user_roles: { ops: ["select"], owner: "user_id" },
   qr_scans: { ops: ["select", "delete"], owner: "__via_tracked_qr__" },

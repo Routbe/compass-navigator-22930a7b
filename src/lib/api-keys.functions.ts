@@ -13,6 +13,7 @@ export const listApiKeys = createServerFn({ method: "GET" })
         "id, name, key_prefix, scopes, rate_limit, request_count, last_used_at, revoked_at, created_at",
       )
       .eq("user_id", context.userId)
+      .is("workspace_id", context.activeWorkspaceId ?? null)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
@@ -49,6 +50,7 @@ export const createApiKey = createServerFn({ method: "POST" })
       .from("api_keys")
       .insert({
         user_id: context.userId,
+        workspace_id: context.activeWorkspaceId ?? null,
         name: data.name,
         key_hash: await hashApiKey(key),
         key_prefix: prefix,
