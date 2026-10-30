@@ -97,3 +97,7 @@
 - [x] Neon gekoppeld (31/10): 141 tabellen, alleen 0125 bewust open
 - [ ] Webhook-eindpunten beheren in console (UI + URL-check tegen privé-adressen)
 - [x] 0128 + 0129 op Neon toegepast (migrate-gateway --only=...)
+
+## Open (Oct 2026)
+- [ ] Live sign-in checks in preview — waiting on required secrets (BETTER_AUTH_SECRET etc.).
+- [ ] 0125_drop_legacy_password_hash.sql held back (destructive; run only after deploy confirmed).

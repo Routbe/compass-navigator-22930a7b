@@ -67,3 +67,5 @@
 - Rate limits: two-bucket sliding window (`decideSlidingLimit`) over Neon `rate_limits`; public routes use `guardShared`. Why: no boundary bursts, shared across workers.
 - Custom-domain "/" redirects come only from pure `root-redirect.ts` (db/0128), applied in src/start.ts. Why: one tested rule, no open redirects.
 - Hold back a migration via `migrate-gateway.ts --only=<files>`. Why: some wait on a deploy.
+- Identity tiers: identity_verifications holds the immutable first proof; tier flags, nullifiers and the legal name live on verified_identities, and tier 1 -> tier 2 upgrades are decided only by `verificationDecision` (identity-tiers.ts). Why: a real human must be able to add the blue mark without breaking immutability.
+- Developer Console apps and API keys are listed/created per active scope (workspace_id null = personal). Why: no keys or apps cross personal/workspace scopes.
