@@ -97,10 +97,11 @@ export async function sendAdminNotification(payload: ContactPayload): Promise<vo
     language: "nl",
     replyTo: { email: payload.email, name: payload.name },
     params: {
-      NAME: payload.name,
-      EMAIL: payload.email,
-      SUBJECT: payload.subject,
-      MESSAGE: payload.message,
+      // Brevo templates insert params as raw HTML: escape every visitor-supplied value.
+      NAME: escape(payload.name),
+      EMAIL: escape(payload.email),
+      SUBJECT: escape(payload.subject),
+      MESSAGE: escape(payload.message),
       DATE: payload.submittedAt ?? new Date().toISOString(),
     },
     html:

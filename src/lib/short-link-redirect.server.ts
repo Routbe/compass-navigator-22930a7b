@@ -95,14 +95,16 @@ export async function resolveShortLink(
 
   // A self-paused (frozen) owner pauses every redirect they own; the link keeps
   // working the moment they sign back in.
+  let trustedOwner = false;
   try {
     const ownerRows = (await sql.query(
-      `select p.status from public.tracked_qrs q
+      `select p.status, coalesce(p.verified, false) as verified from public.tracked_qrs q
          join public.profiles p on p.id = q.user_id
         where q.id = $1 limit 1`,
       [row.id],
-    )) as { status: string | null }[];
+    )) as { status: string | null; verified: boolean }[];
     if (ownerRows[0]?.status === "frozen") return { status: "paused" };
+    trustedOwner = ownerRows[0]?.verified === true;
   } catch {
     // A failing owner lookup must never break a healthy redirect.
   }
@@ -120,7 +122,12 @@ export async function resolveShortLink(
       () => undefined,
     );
 
-  return { status: "ok", targetUrl: row.target_url, id: row.id };
+  // Only verified owners redirect directly; other links show the /go "you are leaving ROUT" page.
+  return { status: "ok", targetUrl: shortLinkDestination(row.target_url, trustedOwner), id: row.id };
+}
+
+export function shortLinkDestination(target: string, trustedOwner: boolean): string {
+  return trustedOwner ? target : `/go?w=${encodeURIComponent(target)}`;
 }
 
 /** Sober, multilingual "this link is paused" page (HTTP 200, never cached). */

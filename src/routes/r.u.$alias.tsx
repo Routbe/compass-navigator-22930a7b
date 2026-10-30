@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { storeReferrer } from "@/lib/referral";
+import { tagReferralVisit } from "@/lib/referral.functions";
 import { useI18n } from "@/lib/i18n";
 
 /** Referral landing for free aliases: `rout.be/r/u/<alias>` → `/u/<alias>`. */
@@ -14,6 +15,7 @@ function AliasReferralLanding() {
   useEffect(() => {
     // First touch wins (storeReferrer never overwrites); validated server-side on claim.
     storeReferrer(handle);
+    void tagReferralVisit({ data: { referrer: handle } }).catch(() => {});
     void navigate({ to: "/about", search: { ref: `u_${handle}` } as never, replace: true });
   }, [handle, navigate]);
 

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { RouteErrorFallback, RoutePendingSkeleton } from "@/components/RouteFallbacks";
 import { Loader2 } from "lucide-react";
 import { storeReferrer } from "@/lib/referral";
+import { tagReferralVisit } from "@/lib/referral.functions";
 import { useI18n } from "@/lib/i18n";
 
 /**
@@ -19,6 +20,7 @@ function ReferralLanding() {
 
   useEffect(() => {
     storeReferrer(handle);
+    void tagReferralVisit({ data: { referrer: handle } }).catch(() => {});
     // Privacy: the referrer handle stays on this device only — nothing is logged.
     void navigate({ to: "/about", search: { ref: handle } as never, replace: true });
   }, [handle, navigate]);

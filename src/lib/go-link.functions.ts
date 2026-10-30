@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { optionalAuth } from "@/lib/auth/middleware";
 
 /**
  * Signed /go app links: the QR generator asks the server to sign the
@@ -29,8 +30,11 @@ function isWebUrl(value?: string): boolean {
 }
 
 export const signGoLink = createServerFn({ method: "POST" })
+  .middleware([optionalAuth])
   .inputValidator((data: unknown) => goSchema.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    // Only signed-in members get auto-redirecting links; anonymous links show the confirmation page.
+    if (!context.userId) return { sig: null };
     if (![data.i, data.a, data.w].every(isWebUrl)) return { sig: null };
     return { sig: await hmac(canonical(data)) };
   });
