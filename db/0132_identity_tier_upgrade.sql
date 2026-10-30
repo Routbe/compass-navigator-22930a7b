@@ -9,16 +9,16 @@ alter table public.verified_identities add constraint verified_identities_legal_
 insert into public.verified_identities
   (user_id, identity_nullifier, provider, tier, tier_1_real_human, tier_2_legal_identity,
    national_id_nullifier, provider_sub_nullifier, legal_name, verified_at)
-select iv.user_id, iv.unique_human_id, iv.verification_provider,
-       case when iv.verification_provider in ('didit', 'itsme', 'eid') then 'tier_2_legal_identity' else 'tier_1_real_human' end,
+select iv.user_id, iv.unique_human_id, iv.verification_provider::text,
+       case when iv.verification_provider::text in ('didit', 'itsme', 'eid') then 'tier_2_legal_identity' else 'tier_1_real_human' end,
        true,
-       iv.verification_provider in ('didit', 'itsme', 'eid'),
-       case when iv.verification_provider in ('didit', 'itsme', 'eid') then iv.unique_human_id end,
-       case when iv.verification_provider = 'w_identity' then iv.unique_human_id end,
-       case when iv.verification_provider in ('didit', 'itsme', 'eid') then iv.verified_real_name end,
+       iv.verification_provider::text in ('didit', 'itsme', 'eid'),
+       case when iv.verification_provider::text in ('didit', 'itsme', 'eid') then iv.unique_human_id end,
+       case when iv.verification_provider::text = 'w_identity' then iv.unique_human_id end,
+       case when iv.verification_provider::text in ('didit', 'itsme', 'eid') then iv.verified_real_name end,
        coalesce(iv.verified_at, now())
   from public.identity_verifications iv
   join public.users u on u.id = iv.user_id
  where iv.is_verified and iv.unique_human_id is not null
-   and iv.verification_provider in ('didit', 'w_identity', 'itsme', 'eid')
+   and iv.verification_provider::text in ('didit', 'w_identity', 'itsme', 'eid')
 on conflict do nothing;
