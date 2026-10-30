@@ -52,7 +52,7 @@ export const listOAuthDebugEvents = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertVerified(context.userId);
     const { listClients } = await import("./provider.server");
-    const app = (await listClients(context.userId)).find((c) => c.id === data.id);
+    const app = (await listClients(context.userId, context.activeWorkspaceId ?? null)).find((c) => c.id === data.id);
     if (!app) throw new Error("Deze app bestaat niet (meer).");
     const { listDebugEvents } = await import("./debug-events.server");
     return listDebugEvents(app.clientId, Boolean(data.errorsOnly));
@@ -63,7 +63,7 @@ export const listMyApiActivity = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertVerified(context.userId);
     const { listClients } = await import("./provider.server");
-    const apps = await listClients(context.userId);
+    const apps = await listClients(context.userId, context.activeWorkspaceId ?? null);
     const { listDebugEventsForClients } = await import("./debug-events.server");
     const names = new Map(apps.map((a) => [a.clientId, a.name]));
     const events = await listDebugEventsForClients(apps.map((a) => a.clientId));
@@ -75,7 +75,7 @@ export const listOAuthClients = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertVerified(context.userId);
     const { listClients } = await import("./provider.server");
-    return listClients(context.userId);
+    return listClients(context.userId, context.activeWorkspaceId ?? null);
   });
 
 export const saveOAuthClient = createServerFn({ method: "POST" })
@@ -108,7 +108,7 @@ export const saveOAuthClient = createServerFn({ method: "POST" })
       const { RATE_RULES } = await import("@/lib/rate-limit-rules");
       const limit = await hitRateLimit("app-create", context.userId, RATE_RULES.appCreate);
       if (!limit.ok) throw new Error("Je hebt het maximum aantal nieuwe apps per uur bereikt. Probeer later opnieuw.");
-      const created = await createClient(context.userId, input);
+      const created = await createClient(context.userId, input, context.activeWorkspaceId ?? null);
       const { later, recipient, sendSiteMail, siteOrigin } = await import("@/lib/site-mail.server");
       later(async () => {
         const r = await recipient(context.userId);

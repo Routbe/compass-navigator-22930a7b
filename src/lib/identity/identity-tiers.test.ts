@@ -27,3 +27,19 @@ describe("identity tiers", () => {
     expect(badgesFor("alias", { tier1RealHuman: false, tier2LegalIdentity: false }, { aliasHumanBadgeOn: true }).humanBadge).toBe(false);
   });
 });
+
+import { verificationDecision } from "./identity-tiers";
+describe("verificationDecision", () => {
+  it("first proof on an unverified account", () => {
+    expect(verificationDecision({ isVerified: false, tier2LegalIdentity: false }, "w_identity")).toBe("first");
+  });
+  it("real human can upgrade to the blue mark with a passport scan", () => {
+    expect(verificationDecision({ isVerified: true, tier2LegalIdentity: false }, "didit")).toBe("upgrade");
+  });
+  it("a second W Identity proof gives nothing", () => {
+    expect(verificationDecision({ isVerified: true, tier2LegalIdentity: false }, "w_identity")).toBe("reject");
+  });
+  it("blue-mark accounts cannot verify again", () => {
+    expect(verificationDecision({ isVerified: true, tier2LegalIdentity: true }, "didit")).toBe("reject");
+  });
+});

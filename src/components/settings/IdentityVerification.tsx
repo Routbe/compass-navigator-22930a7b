@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { BadgeCheck, Fingerprint, Loader2, ScanLine } from "lucide-react";
+import { BadgeCheck, Fingerprint, Loader2, ScanLine, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,70 +48,72 @@ export function IdentityVerification() {
   }
 
   const s = status.data;
+  const tier1 = Boolean(s?.tier1RealHuman);
+  const tier2 = Boolean(s?.tier2LegalIdentity);
+  const spin = <Loader2 className="h-4 w-4 animate-spin" />;
   return (
-    <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
+    <section className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-5">
       <h2 className="flex items-center gap-2 text-lg font-medium">
-        <Fingerprint className="h-5 w-5" aria-hidden /> Verifieer Identiteit
+        <Fingerprint className="h-5 w-5" aria-hidden /> Verificatie
       </h2>
       {status.isLoading ? (
         <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-      ) : s?.isVerified ? (
-        <div className="space-y-2">
-          <div role="status" className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3">
-            <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
-            <p className="text-sm text-foreground">
-              <span className="font-semibold">Identiteit Geverifieerd</span> — Je account is gekoppeld aan een unieke,
-              geverifieerde menselijke identiteit.
-              {s.provider === "w_identity" ? " (W Identity)" : s.provider === "didit" ? " (paspoortscan)" : ""}
-            </p>
-          </div>
-          <label className="block text-xs text-muted-foreground" htmlFor="verified-real-name">
-            Officiële naam
-          </label>
-          <Input id="verified-real-name" value={s.verifiedRealName ?? ""} readOnly disabled aria-readonly />
-          <p className="text-xs text-muted-foreground">
-            Deze naam komt van je identiteitsbewijs en vervangt je profielnaam. Ze kan niet gewijzigd worden.
-          </p>
-        </div>
       ) : (
-        <div className="space-y-3">
-          {s?.isPioneer && (
+        <>
+          {s?.isPioneer && !tier2 && (
             <div role="note" className="rounded-xl border border-primary/30 bg-primary/10 p-3 text-sm">
               <p className="font-semibold">🚀 Pioneer / Early Supporter</p>
               <p className="mt-0.5 text-muted-foreground">
-                Als Early Supporter is je identiteitsverificatie via Didit Paspoortscan gratis. Verifieer eenmalig je
-                paspoort om het officiële Blauwe Vinkje te behouden.
+                Als Early Supporter is je paspoortscan via Didit gratis. Verifieer eenmalig om het officiële Blauwe Vinkje te behouden.
               </p>
             </div>
           )}
-          <p className="text-sm text-muted-foreground">
-            Bewijs dat je een echt persoon bent. Eén geverifieerd account per persoon; we bewaren alleen je naam en een
-            onomkeerbare code, nooit je documenten.
-          </p>
-          <div className="grid gap-2 sm:grid-cols-2">
-            <Button type="button" onClick={() => go("w_identity")} disabled={busy !== null || !s?.wConfigured} className="gap-2">
-              {busy === "w_identity" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Fingerprint className="h-4 w-4" aria-hidden />}
-              Via W Identity (Gratis & Snel)
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => go("didit")}
-              disabled={busy !== null || !s?.diditConfigured || !s?.diditAvailable}
-              className="gap-2"
-            >
-              {busy === "didit" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanLine className="h-4 w-4" aria-hidden />}
-              Via Paspoortscan (Didit)
-            </Button>
+
+          <div className="space-y-2 rounded-xl border border-border p-3">
+            <h3 className="text-sm font-semibold">1. Wettelijke naam (Blauw Vinkje)</h3>
+            {tier2 ? (
+              <>
+                <p role="status" className="flex items-center gap-2 text-sm font-medium text-primary">
+                  <BadgeCheck className="h-4 w-4" aria-hidden /> [✓] Geverifieerde Wettelijke Identiteit
+                </p>
+                <label className="block text-xs text-muted-foreground" htmlFor="verified-real-name">Officiële naam</label>
+                <Input id="verified-real-name" value={s?.verifiedRealName ?? ""} readOnly disabled aria-readonly />
+                <p className="text-xs text-muted-foreground">Deze naam komt van je identiteitsbewijs en kan niet gewijzigd worden.</p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Verifieer je officiële naam met een paspoort- of eID-scan. Eén document geeft maar één blauw vinkje op heel ROUT. We bewaren nooit je documenten.
+                </p>
+                <Button type="button" onClick={() => go("didit")} disabled={busy !== null || !s?.diditConfigured || !s?.diditAvailable} className="w-full gap-2 sm:w-auto">
+                  {busy === "didit" ? spin : <ScanLine className="h-4 w-4" aria-hidden />} Paspoortscan (Didit)
+                </Button>
+                {s && !s.diditAvailable && <p className="text-xs text-destructive">{DIDIT_LIMIT_MESSAGE}</p>}
+                {s && !s.diditConfigured && <p className="text-xs text-muted-foreground">Paspoortscan is nog niet actief.</p>}
+              </>
+            )}
           </div>
-          {s && !s.diditAvailable && <p className="text-xs text-destructive">{DIDIT_LIMIT_MESSAGE}</p>}
-          {s && (!s.wConfigured || !s.diditConfigured) && (
-            <p className="text-xs text-muted-foreground">
-              {!s.wConfigured && "W Identity is nog niet actief. "}
-              {!s.diditConfigured && "Paspoortscan is nog niet actief."}
-            </p>
-          )}
-        </div>
+
+          <div className="space-y-2 rounded-xl border border-border p-3">
+            <h3 className="text-sm font-semibold">2. Echt mens (pseudoniem)</h3>
+            {tier1 ? (
+              <p role="status" className="flex items-center gap-2 text-sm font-medium text-primary">
+                <ShieldCheck className="h-4 w-4" aria-hidden /> [🛡️] Geverifieerd Uniek Mens
+              </p>
+            ) : (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Bewijs dat je een uniek mens bent zonder je naam vrij te geven. Daarna kun je op je alias de badge "No Bot / Real Human" tonen.
+                </p>
+                <Button type="button" variant="outline" onClick={() => go("w_identity")} disabled={busy !== null || !s?.wConfigured} className="w-full gap-2 sm:w-auto">
+                  {busy === "w_identity" ? spin : <Fingerprint className="h-4 w-4" aria-hidden />} Via W Identity
+                </Button>
+                {s && !s.wConfigured && <p className="text-xs text-muted-foreground">W Identity is nog niet actief.</p>}
+                <p className="text-xs text-muted-foreground">Een paspoortscan telt ook als bewijs dat je een echt mens bent.</p>
+              </>
+            )}
+          </div>
+        </>
       )}
     </section>
   );

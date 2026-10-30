@@ -151,9 +151,13 @@ function toClient(row: Row): OAuthClient {
 
 /* ----------------------------------------------------------------- client */
 
-export async function listClients(ownerUserId: string): Promise<OAuthClient[]> {
-  const rows = (await sql`select * from public.oauth_clients
-    where owner_user_id = ${ownerUserId} order by created_at desc`) as Row[];
+/** Personal scope (workspaceId null) lists only personal apps; a workspace lists only its own apps. */
+export async function listClients(ownerUserId: string, workspaceId: string | null = null): Promise<OAuthClient[]> {
+  const rows = (workspaceId
+    ? await sql`select * from public.oauth_clients
+        where owner_user_id = ${ownerUserId} and workspace_id = ${workspaceId}::uuid order by created_at desc`
+    : await sql`select * from public.oauth_clients
+        where owner_user_id = ${ownerUserId} and workspace_id is null order by created_at desc`) as Row[];
   return rows.map(toClient);
 }
 
@@ -207,6 +211,7 @@ function sanitize(input: ClientInput) {
 export async function createClient(
   ownerUserId: string,
   input: ClientInput,
+  workspaceId: string | null = null,
 ): Promise<{ client: OAuthClient; clientSecret: string }> {
   const { name, uris, logoutUris, scopes } = sanitize(input);
   const sectors = new Set(uris.map(redirectSector));
@@ -216,8 +221,8 @@ export async function createClient(
   const clientSecret = generateClientSecret();
   const secretHash = await hashClientSecret(clientSecret, await secretPepper());
   const rows = (await sql`insert into public.oauth_clients
-    (owner_user_id, client_id, secret_hash, name, logo_url, homepage_url, privacy_url, terms_url, redirect_uris, post_logout_redirect_uris, scopes, subject_type, sector_id)
-    values (${ownerUserId}, ${clientId}, ${secretHash}, ${name}, ${input.logoUrl ?? null},
+    (owner_user_id, workspace_id, client_id, secret_hash, name, logo_url, homepage_url, privacy_url, terms_url, redirect_uris, post_logout_redirect_uris, scopes, subject_type, sector_id)
+    values (${ownerUserId}, ${workspaceId}::uuid, ${clientId}, ${secretHash}, ${name}, ${input.logoUrl ?? null},
             ${input.homepageUrl ?? null}, ${input.privacyUrl ?? null}, ${input.termsUrl ?? null},
             ${uris}, ${logoutUris ?? []}, ${scopes}, 'pairwise', ${sectorId})
     returning *`) as Row[];

@@ -6,7 +6,7 @@ export type JsonValue = string | number | boolean | null | JsonValue[] | { [key:
 export type PublicAppRole = "admin" | "moderator" | "user";
 export type PublicIdentityProvider = "w_identity" | "didit" | "manual";
 export type PublicRootRedirectKind = "profile_hub" | "custom_url" | "rout_main" | "none";
-export type PublicWorkspaceRole = "owner" | "admin" | "developer" | "editor";
+export type PublicWorkspaceRole = "owner" | "admin" | "developer" | "editor" | "viewer";
 
 export interface NeonAuthAccountRow {
   "id": string;
@@ -263,6 +263,7 @@ export interface PublicApiKeysRow {
   "revoked_at": string | Date | null;
   "created_at": string | Date;
   "updated_at": string | Date;
+  "workspace_id": string | null;
 }
 
 export interface PublicApprovedHandlesRow {
@@ -797,6 +798,7 @@ export interface PublicLinksRow {
   "position": number;
   "created_at": string | Date;
   "updated_at": string | Date;
+  "workspace_id": string | null;
 }
 
 export interface PublicLoginCodesRow {
@@ -1170,6 +1172,7 @@ export interface PublicProfilesRow {
   "profile_descriptions": JsonValue;
   "workspace_id": string | null;
   "is_early_verified": boolean;
+  "early_believer_at": string | Date | null;
 }
 
 export interface PublicPromoCodeEventsRow {
@@ -1723,6 +1726,11 @@ export interface PublicVerifiedIdentitiesRow {
   "tier": string;
   "method_details": JsonValue;
   "verified_at": string | Date;
+  "tier_1_real_human": boolean;
+  "tier_2_legal_identity": boolean;
+  "national_id_nullifier": string | null;
+  "provider_sub_nullifier": string | null;
+  "legal_name": string | null;
 }
 
 export interface PublicWalletTransactionsRow {
@@ -1838,6 +1846,8 @@ export interface PublicWorkspacesRow {
   "billing_name": string | null;
   "vat_number": string | null;
   "legacy_user_id": string | null;
+  "description": string | null;
+  "category": string | null;
 }
 
 export interface StorageBucketsRow {

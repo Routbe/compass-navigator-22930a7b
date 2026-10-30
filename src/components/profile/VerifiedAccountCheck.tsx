@@ -9,6 +9,9 @@ export function VerifiedAccountCheck({
   name,
   className = "h-3.5 w-3.5",
   theme,
+  lastCheckedAt,
+  followers,
+  profileHandle,
 }: {
   platform: string;
   handle?: string | null;
@@ -16,6 +19,12 @@ export function VerifiedAccountCheck({
   name?: string | null;
   className?: string;
   theme?: { card: string; border: string; text: string; muted: string };
+  /** Last automatic ownership check (ISO), when known. */
+  lastCheckedAt?: string | null;
+  /** Cached follower count text, when applicable. */
+  followers?: string | null;
+  /** ROUT handle that must appear in the platform bio. */
+  profileHandle?: string | null;
 }) {
   const { t } = useI18n();
   return (
@@ -38,13 +47,24 @@ export function VerifiedAccountCheck({
         <div className="flex items-start gap-2">
           <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" aria-hidden />
           <div className="space-y-1">
-            <p className="text-sm font-semibold leading-tight">{t("profile.verified_badge_title")}</p>
+            <p className="text-sm font-semibold leading-tight">Geverifieerd Account-Eigendom</p>
             {name && <p className="text-sm font-medium">{name}</p>}
             <p className="text-xs font-medium" style={theme ? { color: theme.muted } : undefined}>
               {platform}{handle ? ` · @${handle.replace(/^@/, "")}` : ""}
             </p>
             <p className="text-xs leading-relaxed" style={theme ? { color: theme.muted } : undefined}>
-              {t("profile.verified_badge_body")}
+              Eigendom geverifieerd via bio-link handshake ({profileHandle ? `rout.be/${profileHandle}` : "rout.be/handle"} in profiel-bio).
+            </p>
+            {lastCheckedAt && (
+              <p className="text-xs" style={theme ? { color: theme.muted } : undefined}>
+                Laatste check: {new Date(lastCheckedAt).toLocaleDateString("nl-BE", { day: "numeric", month: "long", year: "numeric" })}
+              </p>
+            )}
+            {followers && (
+              <p className="text-xs" style={theme ? { color: theme.muted } : undefined}>Volgers (gecachet): {followers}</p>
+            )}
+            <p className="text-xs font-medium" style={theme ? { color: theme.muted } : undefined}>
+              Nul live tracking API-calls bij jouw bezoek.
             </p>
           </div>
         </div>

@@ -46,7 +46,8 @@
         "owner",
         "admin",
         "developer",
-        "editor"
+        "editor",
+        "viewer"
       ]
     }
   ],
@@ -2361,6 +2362,14 @@
           "default": "now()",
           "identity": null,
           "generated": null
+        },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
         }
       ],
       "constraints": [
@@ -2373,10 +2382,16 @@
           "name": "api_keys_user_id_fkey",
           "kind": "f",
           "def": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "api_keys_workspace_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE"
         }
       ],
       "indexes": [
-        "CREATE INDEX api_keys_user_id_idx ON public.api_keys USING btree (user_id)"
+        "CREATE INDEX api_keys_user_id_idx ON public.api_keys USING btree (user_id)",
+        "CREATE INDEX api_keys_workspace_idx ON public.api_keys USING btree (workspace_id) WHERE (workspace_id IS NOT NULL)"
       ],
       "triggers": [
         "CREATE TRIGGER api_keys_touch_updated_at BEFORE UPDATE ON public.api_keys FOR EACH ROW EXECUTE FUNCTION touch_updated_at()"
@@ -7679,6 +7694,14 @@
           "default": "now()",
           "identity": null,
           "generated": null
+        },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
         }
       ],
       "constraints": [
@@ -7691,10 +7714,16 @@
           "name": "links_profile_id_fkey",
           "kind": "f",
           "def": "FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "links_workspace_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE"
         }
       ],
       "indexes": [
-        "CREATE INDEX links_profile_id_idx ON public.links USING btree (profile_id)"
+        "CREATE INDEX links_profile_id_idx ON public.links USING btree (profile_id)",
+        "CREATE INDEX links_workspace_idx ON public.links USING btree (workspace_id) WHERE (workspace_id IS NOT NULL)"
       ],
       "triggers": [
         "CREATE TRIGGER links_touch_updated_at BEFORE UPDATE ON public.links FOR EACH ROW EXECUTE FUNCTION touch_updated_at()"
@@ -11020,6 +11049,14 @@
           "type": "boolean",
           "notNull": true,
           "default": "false",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "early_believer_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
           "identity": null,
           "generated": null
         }
@@ -16435,6 +16472,46 @@
           "default": "now()",
           "identity": null,
           "generated": null
+        },
+        {
+          "name": "tier_1_real_human",
+          "type": "boolean",
+          "notNull": true,
+          "default": "false",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "tier_2_legal_identity",
+          "type": "boolean",
+          "notNull": true,
+          "default": "false",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "national_id_nullifier",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "provider_sub_nullifier",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "legal_name",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
         }
       ],
       "constraints": [
@@ -16442,6 +16519,11 @@
           "name": "verified_identities_identity_nullifier_key",
           "kind": "u",
           "def": "UNIQUE (identity_nullifier)"
+        },
+        {
+          "name": "verified_identities_legal_name_len",
+          "kind": "c",
+          "def": "CHECK (((legal_name IS NULL) OR (char_length(legal_name) <= 160)))"
         },
         {
           "name": "verified_identities_pkey",
@@ -16452,6 +16534,11 @@
           "name": "verified_identities_provider_check",
           "kind": "c",
           "def": "CHECK ((provider = ANY (ARRAY['didit'::text, 'w_identity'::text, 'itsme'::text, 'eid'::text])))"
+        },
+        {
+          "name": "verified_identities_tier2_needs_nullifier",
+          "kind": "c",
+          "def": "CHECK (((NOT tier_2_legal_identity) OR (national_id_nullifier IS NOT NULL))) NOT VALID"
         },
         {
           "name": "verified_identities_tier_check",
@@ -16469,7 +16556,10 @@
           "def": "UNIQUE (user_id)"
         }
       ],
-      "indexes": [],
+      "indexes": [
+        "CREATE UNIQUE INDEX verified_identities_national_id_uniq ON public.verified_identities USING btree (national_id_nullifier) WHERE (national_id_nullifier IS NOT NULL)",
+        "CREATE UNIQUE INDEX verified_identities_provider_sub_uniq ON public.verified_identities USING btree (provider, provider_sub_nullifier) WHERE (provider_sub_nullifier IS NOT NULL)"
+      ],
       "triggers": [],
       "rls": true,
       "forceRls": false,
@@ -17633,9 +17723,35 @@
           "default": null,
           "identity": null,
           "generated": null
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
         }
       ],
       "constraints": [
+        {
+          "name": "workspaces_category_check",
+          "kind": "c",
+          "def": "CHECK (((category IS NULL) OR (category = ANY (ARRAY['business'::text, 'agency'::text, 'nonprofit'::text, 'event'::text, 'project'::text]))))"
+        },
+        {
+          "name": "workspaces_description_len",
+          "kind": "c",
+          "def": "CHECK (((description IS NULL) OR (char_length(description) <= 280)))"
+        },
         {
           "name": "workspaces_legacy_user_id_fkey",
           "kind": "f",

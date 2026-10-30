@@ -12,11 +12,8 @@ export const getMyIdentityStatus = createServerFn({ method: "POST" })
     const { sql } = await import("@/lib/neon");
     const pioneer = (await sql`select coalesce(is_early_believer, false) or coalesce(is_paid, false) as p
       from public.profiles where id = ${context.userId} limit 1`.catch(() => [])) as { p: boolean }[];
-    const { tiersFor } = await import("./identity-tiers");
-    const tiers = tiersFor([{ provider: status.provider, verified: status.isVerified }]);
     return {
       ...status,
-      ...tiers,
       /** Paid the legacy €3.99 verification: shown as Pioneer, must still verify identity. */
       isPioneer: Boolean(pioneer[0]?.p),
       wConfigured: providerConfigured("w_identity"),
@@ -37,7 +34,10 @@ export const startIdentityVerification = createServerFn({ method: "POST" })
     const id = await import("./identity.server");
     const { diditAvailable } = await import("./identity-rules");
     if (!id.providerConfigured(data.provider)) return { ok: false, reason: "not_configured" };
-    if ((await id.getIdentityStatus(context.userId)).isVerified) return { ok: false, reason: "already_verified" };
+    const { verificationDecision } = await import("./identity-tiers");
+    if (verificationDecision(await id.getIdentityStatus(context.userId), data.provider) === "reject") {
+      return { ok: false, reason: "already_verified" };
+    }
     const { trustedOrigin } = await import("@/lib/safe-redirect");
     // Client-supplied origin: only our own domains (dev hosts outside production) may receive callbacks.
     const origin = trustedOrigin(data.origin, { allowDev: process.env["VERCEL_ENV"] !== "production" }) ?? "https://rout.be";
