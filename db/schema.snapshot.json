@@ -6172,6 +6172,296 @@
     },
     {
       "schema": "public",
+      "name": "feedback_forms",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "notNull": true,
+          "default": "gen_random_uuid()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "notNull": true,
+          "default": "'stars_5'::text",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "show_on_profile",
+          "type": "boolean",
+          "notNull": true,
+          "default": "true",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "full_page",
+          "type": "boolean",
+          "notNull": true,
+          "default": "false",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "slug",
+          "type": "text",
+          "notNull": true,
+          "default": "(gen_random_uuid())::text",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "profile_space",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "profile_handle",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feedback_forms_check",
+          "kind": "c",
+          "def": "CHECK (((profile_space = 'workspace'::text) = (workspace_id IS NOT NULL)))"
+        },
+        {
+          "name": "feedback_forms_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "feedback_forms_profile_space_check",
+          "kind": "c",
+          "def": "CHECK ((profile_space = ANY (ARRAY['root'::text, 'alias'::text, 'workspace'::text])))"
+        },
+        {
+          "name": "feedback_forms_slug_key",
+          "kind": "u",
+          "def": "UNIQUE (slug)"
+        },
+        {
+          "name": "feedback_forms_title_check",
+          "kind": "c",
+          "def": "CHECK (((char_length(title) >= 1) AND (char_length(title) <= 160)))"
+        },
+        {
+          "name": "feedback_forms_type_check",
+          "kind": "c",
+          "def": "CHECK ((type = ANY (ARRAY['stars_5'::text, 'nps_10'::text, 'emoji_3'::text, 'text_review'::text])))"
+        },
+        {
+          "name": "feedback_forms_user_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "feedback_forms_workspace_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX feedback_forms_scope_idx ON public.feedback_forms USING btree (workspace_id, user_id, created_at)"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [
+        {
+          "name": "rout_scope",
+          "permissive": true,
+          "roles": [
+            "public"
+          ],
+          "cmd": "ALL",
+          "using": "(((workspace_id IS NULL) AND (user_id = rout_current_user_id())) OR ((workspace_id IS NOT NULL) AND rout_is_workspace_member(workspace_id)))",
+          "check": "(((workspace_id IS NULL) AND (user_id = rout_current_user_id())) OR ((workspace_id IS NOT NULL) AND rout_is_workspace_member(workspace_id)))"
+        }
+      ],
+      "grants": {
+        "rout_app": [
+          "DELETE",
+          "INSERT",
+          "SELECT",
+          "UPDATE"
+        ]
+      }
+    },
+    {
+      "schema": "public",
+      "name": "feedback_responses",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "notNull": true,
+          "default": "gen_random_uuid()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "form_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "rating",
+          "type": "integer",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "comment",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "reviewer_name",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "allow_featured",
+          "type": "boolean",
+          "notNull": true,
+          "default": "false",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "is_featured",
+          "type": "boolean",
+          "notNull": true,
+          "default": "false",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feedback_responses_check",
+          "kind": "c",
+          "def": "CHECK (((NOT is_featured) OR allow_featured))"
+        },
+        {
+          "name": "feedback_responses_comment_check",
+          "kind": "c",
+          "def": "CHECK ((char_length(comment) <= 2000))"
+        },
+        {
+          "name": "feedback_responses_form_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (form_id) REFERENCES feedback_forms(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "feedback_responses_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "feedback_responses_rating_check",
+          "kind": "c",
+          "def": "CHECK (((rating >= 0) AND (rating <= 10)))"
+        },
+        {
+          "name": "feedback_responses_reviewer_name_check",
+          "kind": "c",
+          "def": "CHECK ((char_length(reviewer_name) <= 100))"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX feedback_responses_form_idx ON public.feedback_responses USING btree (form_id, created_at DESC, id)"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [
+        {
+          "name": "rout_scope",
+          "permissive": true,
+          "roles": [
+            "public"
+          ],
+          "cmd": "ALL",
+          "using": "(EXISTS ( SELECT 1\n   FROM feedback_forms f\n  WHERE (f.id = feedback_responses.form_id)))",
+          "check": "(EXISTS ( SELECT 1\n   FROM feedback_forms f\n  WHERE (f.id = feedback_responses.form_id)))"
+        }
+      ],
+      "grants": {
+        "rout_app": [
+          "DELETE",
+          "INSERT",
+          "SELECT",
+          "UPDATE"
+        ]
+      }
+    },
+    {
+      "schema": "public",
       "name": "forwarding_confirmation_sends",
       "columns": [
         {
@@ -18083,6 +18373,12 @@
     },
     {
       "schema": "public",
+      "name": "feedback_form_is_public",
+      "args": "f feedback_forms",
+      "def": "CREATE OR REPLACE FUNCTION public.feedback_form_is_public(f feedback_forms)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select case f.profile_space\n    when 'alias' then exists (\n      select 1 from public.alias_profiles a join public.profiles p on p.id = a.user_id\n      where a.user_id = f.user_id and a.handle = f.profile_handle and a.enabled\n        and coalesce((a.display_prefs->>'publicProfile')::boolean, true)\n        and not coalesce(p.is_banned,false) and not coalesce(p.is_suspended,false)\n        and coalesce(p.status,'active') not in ('frozen','banned','suspended'))\n    when 'root' then exists (\n      select 1 from public.profiles p where p.id = f.user_id and p.username = f.profile_handle\n        and p.workspace_id is null and coalesce((p.display_prefs->>'publicProfile')::boolean,true)\n        and not coalesce(p.is_banned,false) and not coalesce(p.is_suspended,false)\n        and coalesce(p.status,'active') not in ('frozen','banned','suspended'))\n    when 'workspace' then exists (\n      select 1 from public.workspaces w join public.profiles p on p.workspace_id = w.id\n      where w.id = f.workspace_id and w.slug = f.profile_handle\n        and coalesce((p.display_prefs->>'publicProfile')::boolean,true)\n        and not coalesce(p.is_banned,false) and not coalesce(p.is_suspended,false)\n        and coalesce(p.status,'active') not in ('frozen','banned','suspended'))\n    else false end\n$function$"
+    },
+    {
+      "schema": "public",
       "name": "generate_unique_handle",
       "args": "_seed text",
       "def": "CREATE OR REPLACE FUNCTION public.generate_unique_handle(_seed text)\n RETURNS text\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  base text;\n  candidate text;\n  i int := 0;\nbegin\n  base := regexp_replace(lower(coalesce(_seed, 'member')), '[^a-z0-9]+', '', 'g');\n  if length(base) < 3 then base := base || 'member'; end if;\n  base := left(base, 20);\n  candidate := base;\n  while not public.is_handle_available(candidate) loop\n    i := i + 1;\n    candidate := left(base, 20) || i::text;\n    exit when i > 9999;\n  end loop;\n  return candidate;\nend;\n$function$"
@@ -18179,6 +18475,12 @@
     },
     {
       "schema": "public",
+      "name": "read_public_feedback",
+      "args": "p_slug text, p_space text, p_handle text",
+      "def": "CREATE OR REPLACE FUNCTION public.read_public_feedback(p_slug text, p_space text, p_handle text)\n RETURNS jsonb\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select coalesce(jsonb_agg(jsonb_build_object(\n    'id',f.id,'title',f.title,'type',f.type,'slug',f.slug,\n    'showOnProfile',f.show_on_profile,'fullPage',f.full_page,\n    'profileSpace',f.profile_space,'profileHandle',f.profile_handle,\n    'featured',coalesce((select jsonb_agg(jsonb_build_object(\n      'id',r.id,'formId',r.form_id,'rating',r.rating,'comment',r.comment,\n      'reviewerName',r.reviewer_name,'isFeatured',true,'allowFeatured',true,'createdAt',r.created_at))\n      from (select * from public.feedback_responses where form_id=f.id and is_featured and allow_featured\n            order by created_at desc, id limit 20) r),'[]'::jsonb)\n  )),'[]'::jsonb) from (\n    select * from public.feedback_forms f\n    where public.feedback_form_is_public(f)\n      and (case when p_slug is not null then f.slug=p_slug\n           else f.profile_space=p_space and f.profile_handle=p_handle and f.show_on_profile end)\n    order by f.created_at limit 50\n  ) f\n$function$"
+    },
+    {
+      "schema": "public",
       "name": "resolve_short_link",
       "args": "_slug text",
       "def": "CREATE OR REPLACE FUNCTION public.resolve_short_link(_slug text)\n RETURNS TABLE(id uuid, status text, target_url text)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select q.id,\n    case\n      when not q.is_active then 'disabled'\n      when q.expires_at is not null and q.expires_at < now() then 'expired'\n      else 'ok'\n    end as status,\n    q.target_url\n  from public.tracked_qrs q\n  where q.slug = lower(_slug)\n  limit 1;\n$function$"
@@ -18248,6 +18550,12 @@
       "name": "social_links_touch",
       "args": "",
       "def": "CREATE OR REPLACE FUNCTION public.social_links_touch()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n  new.updated_at := now();\n  return new;\nend $function$"
+    },
+    {
+      "schema": "public",
+      "name": "submit_public_feedback",
+      "args": "p_form uuid, p_rating integer, p_comment text, p_name text, p_consent boolean",
+      "def": "CREATE OR REPLACE FUNCTION public.submit_public_feedback(p_form uuid, p_rating integer, p_comment text, p_name text, p_consent boolean)\n RETURNS uuid\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare f public.feedback_forms; result uuid;\nbegin\n  select * into f from public.feedback_forms where id=p_form;\n  if not found or not public.feedback_form_is_public(f) then raise exception 'feedback_unavailable'; end if;\n  if char_length(coalesce(p_comment,'')) > 2000 or char_length(coalesce(p_name,'')) > 100 then\n    raise exception 'feedback_invalid';\n  end if;\n  if (f.type='text_review' and (p_rating is not null or char_length(trim(coalesce(p_comment,'')))=0))\n    or (f.type<>'text_review' and (p_rating is null or\n      p_rating < case when f.type='nps_10' then 0 else 1 end or\n      p_rating > case when f.type='nps_10' then 10 when f.type='emoji_3' then 3 else 5 end)) then\n    raise exception 'feedback_invalid';\n  end if;\n  insert into public.feedback_responses(form_id,rating,comment,reviewer_name,allow_featured)\n    values(p_form,p_rating,nullif(trim(p_comment),''),nullif(trim(p_name),''),coalesce(p_consent,false)) returning id into result;\n  return result;\nend $function$"
     },
     {
       "schema": "public",
