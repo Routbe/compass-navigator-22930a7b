@@ -15196,6 +15196,22 @@
           "default": null,
           "identity": null,
           "generated": null
+        },
+        {
+          "name": "youtube_presence",
+          "type": "jsonb",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "youtube_presence_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
         }
       ],
       "constraints": [

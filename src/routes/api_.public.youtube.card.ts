@@ -16,7 +16,9 @@ export const Route = createFileRoute("/api_/public/youtube/card")({
           if (!y.youtubeConfigured()) return Response.json({ card: null }, { headers });
           const owner = await y.publicYouTubeOwner(handle);
           if (!owner) return Response.json({ card: null }, { headers });
-          return Response.json({ card: await y.cachedCard(owner) }, { headers });
+          const [card, presence] = await Promise.all([y.cachedCard(owner), y.youtubePresence(owner).catch(() => null)]);
+          const live = presence?.isLive && presence.videoId ? { videoId: presence.videoId, title: presence.title ?? "" } : null;
+          return Response.json({ card, live }, { headers: { "cache-control": "public, max-age=60" } });
         } catch (e) {
           console.error("[youtube-card]", e instanceof Error ? e.message : "unknown");
           return Response.json({ card: null }, { headers });

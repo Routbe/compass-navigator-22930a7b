@@ -1,23 +1,5 @@
-import { createHmac, timingSafeEqual } from "crypto";
 import { createFileRoute } from "@tanstack/react-router";
-
-function verifyStripeSignature(body: string, signature: string, secret: string): boolean {
-  const parts = Object.fromEntries(
-    signature.split(",").map((part) => {
-      const [key, ...value] = part.split("=");
-      return [key, value.join("=")];
-    }),
-  );
-  const timestamp = parts["t"];
-  const expected = parts["v1"];
-  if (!timestamp || !expected) return false;
-
-  const signedPayload = `${timestamp}.${body}`;
-  const digest = createHmac("sha256", secret).update(signedPayload).digest("hex");
-  const left = Buffer.from(expected, "hex");
-  const right = Buffer.from(digest, "hex");
-  return left.length === right.length && timingSafeEqual(left, right);
-}
+import { verifyStripeSignature } from "@/lib/webhook-replay";
 
 export const Route = createFileRoute("/api_/public/stripe-webhook")({
   server: {

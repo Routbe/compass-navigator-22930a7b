@@ -2,6 +2,7 @@ import { normalizeLayersPref } from "./profile-display";
 import { createServerFn } from "@tanstack/react-start";
 import { requireAuth } from "@/lib/auth/middleware";
 import { z } from "zod";
+import { draftJsonRecordSchema } from "./draft-json-schema";
 import { optionalProfileImageUrlSchema } from "./profile-image-url";
 
 /**
@@ -72,13 +73,7 @@ export type SaveAliasProfileInput = {
   expectedRevision?: number;
 };
 
-const jsonValueSchema = z.union([
-  z.string().max(20_000),
-  z.number().finite(),
-  z.boolean(),
-  z.null(),
-]);
-const jsonRecordSchema = z.record(z.string(), z.union([jsonValueSchema, z.array(jsonValueSchema).max(100)]));
+const jsonRecordSchema = draftJsonRecordSchema;
 const optionalUrlSchema = optionalProfileImageUrlSchema;
 const saveAliasProfileSchema = z.strictObject({
   username: z.string().trim().min(1).max(60),
@@ -95,8 +90,14 @@ const saveAliasProfileSchema = z.strictObject({
 const handleSchema = z.strictObject({ handle: z.string().trim().min(1).max(60) });
 const revisionSchema = z.strictObject({ expectedRevision: z.number().int().min(1) });
 
-function validateAliasProfile(input: unknown): SaveAliasProfileInput {
-  const parsed = saveAliasProfileSchema.parse(input) as SaveAliasProfileInput;
+function validateAliasProfile(input: unknown): SaveAliasProfileInput | { __invalid: string } {
+  const safe = (schema: typeof saveAliasProfileSchema) => schema.safeParse(input);
+  const result = safe(saveAliasProfileSchema);
+  if (!result.success) {
+    const issue = result.error.issues[0];
+    return { __invalid: `validation: ${issue?.path.join('.') ?? ''} ${issue?.message ?? ''}`.slice(0, 300) };
+  }
+  const parsed = result.data as unknown as SaveAliasProfileInput;
   // Server-side normalization of the layered design (never trust the client).
   if (parsed.displayPrefs && "designLayers" in parsed.displayPrefs) {
     parsed.displayPrefs = {
@@ -115,15 +116,14 @@ export const saveAliasProfile = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .inputValidator(validateAliasProfile)
   .handler(async ({ data, context }) => {
-    try {
-      const { saveProfileDraft } = await import("./profile-drafts.server");
-      const { expectedRevision = 0, ...payload } = data;
-      const meta = await saveProfileDraft(context.userId, "alias", payload, expectedRevision);
-      return { ok: true as const, profile: { ...payload, ...meta }, reason: null };
-    } catch (error) {
-      const reason = error instanceof Error ? error.message : "save_failed";
-      return { ok: false as const, profile: null, reason };
+    const { runDraftSave } = await import("./draft-save.server");
+    const { classifySaveError } = await import("./save-errors");
+    if ("__invalid" in data) {
+      const error = classifySaveError(data.__invalid);
+      return { ok: false as const, profile: null, reason: error.detail, error, conflict: null };
     }
+    const workspaceId = (context as { activeWorkspaceId?: string | null }).activeWorkspaceId ?? null;
+    return runDraftSave(context.userId, workspaceId, "alias", data as never, "saveAliasProfile");
   });
 
 export const publishAliasProfile = createServerFn({ method: "POST" })

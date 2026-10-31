@@ -145,3 +145,16 @@ export async function discardProfileDraft(
   if (!row) throw new Error("draft_conflict");
   return { payload: (row["payload"] as SerializableDraftPayload) ?? (livePayload as SerializableDraftPayload), meta: rowMeta(row) };
 }
+/** Current revision + stored QR settings, used to rebase an editor after a conflict. */
+export async function readDraftHead(
+  userId: string,
+  space: ProfileSpace,
+): Promise<{ currentRevision: number; qrSettingsJson: string | null } | null> {
+  const rows = (await sql`
+    select revision, payload->'displayPrefs'->'qrSettings' as qr
+      from public.profile_drafts where user_id = ${userId} and space = ${space}
+  `) as Row[];
+  const row = rows[0];
+  if (!row) return null;
+  return { currentRevision: Number(row["revision"] ?? 0), qrSettingsJson: row["qr"] == null ? null : JSON.stringify(row["qr"]) };
+}

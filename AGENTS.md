@@ -22,8 +22,6 @@
 - Sign-ins return via `/auth/continue`; destinations/tour drafts use HttpOnly cookies; drafts only for new accounts, taken handles go to onboarding. Why: no token leaks or overwrites. Auth emails: `sendLocalizedEmail`, static template IDs, non-blocking.
 - Builds: nitro `vercel` on Vercel, cloudflare in sandbox.
 - Third-party images on public pages load only via `/api/public/proxy-image` (host allowlist in `src/lib/image-proxy-rules.ts`). Why: visitors' IPs must never reach third-party image hosts.
-- Emailed action links (review, booking) only confirm on GET, change on POST; status mails send fire-and-forget. Why: scanners open links; mail failures never block actions.
-- 2FA/passkeys: Better Auth `twoFactor` + `@better-auth/passkey`, tables in `neon_auth` (db/77). Why: no custom crypto.
 - db/ is the only schema source: numbered SQL files (new ones 4-digit from 0111, unique), ordered numerically by scripts/migration-plan.ts for both runners (migrate-gateway.ts splits statements, one batch per transaction). App code never runs DDL (no-runtime-ddl test). Why: text sorting ran 100+ before 10..99 and runtime DDL caused drift.
 - 0000_baseline.sql is a squashed baseline covering <=110: run only on an empty database, otherwise recorded. After any migration run `bun scripts/schema-snapshot.ts` to refresh db/schema.snapshot.json + src/lib/db-types.gen.ts; CI replays all migrations on PGlite and must equal the snapshot, `--check` compares live. Why: the old files could not build an empty database.
 - "Login met ROUT" signing keys live only sealed (key-seal.server.ts, KEK from ROUT_PROVIDER_SIGNING_KEK, HMAC-derived per-kid AES-256-GCM); rules in key-rules.ts: 90-day auto rotation, 48 h JWKS grace, ES256 + exact kid or reject. Legacy plaintext keys are sealed only via scripts/seal-signing-keys.ts after all deployments run this code. Why: a database reader must never be able to forge ID tokens, and older deployments can only read plaintext.
@@ -66,6 +64,5 @@
 
 - Rate limits: two-bucket sliding window (`decideSlidingLimit`) over Neon `rate_limits`; public routes use `guardShared`. Why: no boundary bursts, shared across workers.
 - Custom-domain "/" redirects come only from pure `root-redirect.ts` (db/0128), applied in src/start.ts. Why: one tested rule, no open redirects.
-- Hold back a migration via `migrate-gateway.ts --only=<files>`. Why: some wait on a deploy.
 - Identity tiers: identity_verifications holds the immutable first proof; tier flags, nullifiers and the legal name live on verified_identities, and tier 1 -> tier 2 upgrades are decided only by `verificationDecision` (identity-tiers.ts). Why: a real human must be able to add the blue mark without breaking immutability.
 - Developer Console apps and API keys are listed/created per active scope (workspace_id null = personal). Why: no keys or apps cross personal/workspace scopes.

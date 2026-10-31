@@ -144,6 +144,8 @@ import { BlueskyWizard } from "@/components/dashboard/BlueskyWizard";
 import { LiveStatusAccordion } from "@/components/studio/LiveStatusAccordion";
 import { ShareMenu } from "@/components/profile/ShareMenu";
 import { DesignTemplatesPanel } from "@/components/settings/DesignTemplatesPanel";
+import { SaveErrorDialog } from "@/components/dashboard/SaveErrorDialog";
+import { classifySaveError, type SaveErrorInfo } from "@/lib/save-errors";
 
 export type ProfileVariant = "verified" | "alias";
 
@@ -182,7 +184,9 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [dirty, setDirty] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<SaveErrorInfo | null>(null);
+  const [errorOpen, setErrorOpen] = useState(false);
+  const conflictRebases = useRef(0);
   const [retryIn, setRetryIn] = useState(0);
   const [draftRevision, setDraftRevision] = useState(0);
   const [publishedRevision, setPublishedRevision] = useState(0);
@@ -601,15 +605,29 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
     });
     } catch (e) {
       failCount.current += 1;
-      setSaveError(e instanceof Error ? e.message : t("studio.editor.network"));
+      setSaveError(classifySaveError(e instanceof Error && /fetch|network|load failed/i.test(e.message) ? "failed to fetch" : e));
       setSaving(false);
       setRetryIn((n) => n + 1);
       return;
     }
     setSaving(false);
     if (!result.ok) {
+      const info: SaveErrorInfo = result.error;
+      // Conflict (e.g. a QR save bumped the revision): adopt the newest revision and
+      // its QR settings, then save again instead of retrying a stale revision forever.
+      const conflict = "conflict" in result ? result.conflict : null;
+      if (info.code === "conflict" && conflict && conflictRebases.current < 3) {
+        conflictRebases.current += 1;
+        setDraftRevision(conflict.currentRevision);
+        if (conflict.qrSettingsJson) {
+          const qr = JSON.parse(conflict.qrSettingsJson) as unknown;
+          setPrefs((p) => ({ ...p, qrSettings: qr }) as typeof p);
+        }
+        setRetryIn((n) => n + 1);
+        return;
+      }
       failCount.current += 1;
-      setSaveError(result.reason ?? t("studio.editor.saveFailed"));
+      setSaveError(info);
       if (silent) return;
       if (result.reason === "handle_taken") return toast.error(t("studio.editor.taken"));
       if (result.reason === "handle_reserved")
@@ -625,6 +643,7 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
     setDraftRevision(nextRevision);
     setPublishedRevision(nextPublished);
     failCount.current = 0;
+    conflictRebases.current = 0;
     setSaveError(null);
     // Alleen "opgeslagen" als er tijdens het opslaan niets meer veranderde.
     if (editRev.current === rev) setDirty(false);
@@ -1879,13 +1898,22 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
 
       {/* Low, compact mobile bar: subtle autosave status + primary live-preview action.
           Desktop already shows the pinned preview aside, so this bar is mobile-only. */}
+      {saveError && (
+        <SaveErrorDialog
+          error={saveError}
+          open={errorOpen}
+          onOpenChange={setErrorOpen}
+          onRetry={() => { failCount.current = 0; void save(false); }}
+          endpoint={alias ? "saveAliasProfile" : "saveStudioProfile"}
+        />
+      )}
       {showSaveBar && (
         <div
           aria-live="polite"
           className="fixed right-4 top-4 z-40 hidden items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 py-1 text-[11px] text-muted-foreground shadow-sm backdrop-blur lg:flex"
         >
           {saveError && !saving ? (
-            <button type="button" onClick={() => void save(false)} className="text-destructive underline">
+            <button type="button" onClick={() => setErrorOpen(true)} className="text-destructive underline">
               {t("studio.editor.notSaved")}
             </button>
           ) : saving || dirty ? (
@@ -1909,7 +1937,7 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
               {saveError && !saving ? (
                 <button
                   type="button"
-                  onClick={() => void save(false)}
+                  onClick={() => setErrorOpen(true)}
                   className="truncate text-left text-destructive underline"
                 >
                   {t("studio.editor.notSaved")}

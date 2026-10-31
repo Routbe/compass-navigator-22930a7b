@@ -43,3 +43,9 @@
 
 - Outbound webhooks are signed only via `webhooks/signature.ts` (`X-Rout-Signature: t=..,v1=hmac`) and delivered from the `webhook_deliveries` queue by the deliver-webhooks cron with `nextRetryDelaySec` backoff; endpoint secrets are sealed. Why: receivers can verify origin and replay window, failures retry without blocking.
 - Booking intake uses booking-engine/intake.ts for shared validation and sensitive-answer separation; external AI paths must never receive answers. Why: guest medical and dietary data stay private.
+- Studio draft saves validate with `draft-json-schema.ts` (nested JSON, bounded) and fail as structured `SaveErrorInfo` from pure `save-errors.ts` via `draft-save.server.ts`; conflicts return the current revision so the editor rebases. Critical failures mail the admin via `email/error-reporter.server.ts`, max 1 auto mail per error type per 15 min. Why: a flat schema silently refused every nested pref, and bare 500s hid the cause.
+- Short-link direct redirects are decided only by pure `short-link-trust.ts`. Incoming signed webhooks use `webhook-replay.ts` (300 s window). User-supplied outbound URLs go through `safe-fetch.server.ts` (`assertPublicHost`). Why: one tested rule each for redirects, replays and SSRF.
+- YouTube live presence comes only from hub pushes (`/api/public/youtube/push`, signature per channel) with a 15-minute TTL in pure `youtube-presence.ts`. Why: no polling quota and no stale "live".
+- Emailed action links (review, booking) only confirm on GET, change on POST; status mails send fire-and-forget. Why: scanners open links; mail failures never block actions.
+- 2FA/passkeys: Better Auth `twoFactor` + `@better-auth/passkey`, tables in `neon_auth` (db/77). Why: no custom crypto.
+- Hold back a migration via `migrate-gateway.ts --only=<files>`. Why: some wait on a deploy.

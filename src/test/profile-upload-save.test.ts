@@ -23,8 +23,13 @@ describe("upload URL accepted by both profile save paths", () => {
     });
     it(`${space} rejects arbitrary or malformed relative paths`, () => {
       for (const url of ["//evil.example/avatar", "/api/public/avatar?path=../../secret", `${avatar}&extra=1`, "/admin/avatar"]) {
-        expect(() => validate({ username: "anna", avatarUrl: url })).toThrow();
+        // Refused before saving: the validator returns a structured validation error instead of throwing a 500.
+        expect(validate({ username: "anna", avatarUrl: url })).toHaveProperty("__invalid");
       }
+    });
+    it(`${space} accepts nested display prefs (qrSettings)`, () => {
+      const r = validate({ username: "anna", displayPrefs: { qrSettings: { fg: "#000", logo: { size: 0.2 } } } } as never);
+      expect(r).not.toHaveProperty("__invalid");
     });
     it(`${space} retains HTTPS storage upload support`, () => {
       const url = "https://member.s3.fr-par.scw.cloud/users/12345678-1234-1234-1234-123456789abc/avatar/photo.webp";

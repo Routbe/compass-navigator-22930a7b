@@ -1,5 +1,6 @@
 /** Network side of the ICS and CalDAV adapters. https only, public hosts only, size-capped. */
 import { isPublicHost } from "@/lib/open-web-rules";
+import { assertPublicHost } from "@/lib/safe-fetch.server";
 import { parseIcsBusy } from "./ics-parse";
 import type { RawExternalEvent } from "./zero-knowledge";
 
@@ -40,6 +41,8 @@ async function readCapped(res: Response): Promise<string> {
 
 export async function fetchIcsFeed(url: string, from: Date, to: Date, etag?: string | null) {
   const u = checkUrl(url);
+  // DNS check too: a public-looking name must not resolve to an internal address.
+  if (!(await assertPublicHost(u.hostname))) throw new CalendarFetchError("invalid_url");
   let res: Response;
   try {
     res = await fetch(u, { redirect: "error", headers: { Accept: "text/calendar", ...(etag ? { "If-None-Match": etag } : {}) }, signal: AbortSignal.timeout(15000) });
@@ -75,6 +78,8 @@ export function extractCalendarData(xml: string): string[] {
 
 export async function fetchCaldav(creds: { url: string; username: string; password: string }, from: Date, to: Date) {
   const u = checkUrl(creds.url);
+  // DNS check too: a public-looking name must not resolve to an internal address.
+  if (!(await assertPublicHost(u.hostname))) throw new CalendarFetchError("invalid_url");
   let res: Response;
   try {
     res = await fetch(u, {
