@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { AvatarUpload } from "@/components/settings/AvatarUpload";
 import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { styledProfilePath, type UrlStyle } from "@/lib/profile-url";
-import { AVATAR_SHAPES, type AvatarShape, type ProfileDisplayPrefs } from "@/lib/profile-display";
+import { type ProfileDisplayPrefs } from "@/lib/profile-display";
 import { type ProfileBlock } from "@/lib/profile";
 import { cn } from "@/lib/utils";
 import { VerifiedModal } from "./VerifiedModal";
