@@ -1596,6 +1596,8 @@ export interface PublicUserIntegrationsRow {
   "youtube_card_json": JsonValue | null;
   "youtube_card_at": string | Date | null;
   "verified_at": string | Date | null;
+  "youtube_presence": JsonValue | null;
+  "youtube_presence_at": string | Date | null;
 }
 
 export interface PublicUserLinkedAccountsRow {
