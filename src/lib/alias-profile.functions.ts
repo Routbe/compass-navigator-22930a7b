@@ -2,6 +2,7 @@ import { normalizeLayersPref } from "./profile-display";
 import { createServerFn } from "@tanstack/react-start";
 import { requireAuth } from "@/lib/auth/middleware";
 import { z } from "zod";
+import { draftJsonRecordSchema } from "./draft-json-schema";
 import { optionalProfileImageUrlSchema } from "./profile-image-url";
 
 /**
@@ -72,13 +73,7 @@ export type SaveAliasProfileInput = {
   expectedRevision?: number;
 };
 
-const jsonValueSchema = z.union([
-  z.string().max(20_000),
-  z.number().finite(),
-  z.boolean(),
-  z.null(),
-]);
-const jsonRecordSchema = z.record(z.string(), z.union([jsonValueSchema, z.array(jsonValueSchema).max(100)]));
+const jsonRecordSchema = draftJsonRecordSchema;
 const optionalUrlSchema = optionalProfileImageUrlSchema;
 const saveAliasProfileSchema = z.strictObject({
   username: z.string().trim().min(1).max(60),
