@@ -164,6 +164,7 @@ const Index = () => {
     if (typeof window === "undefined") return;
     const requested = new URLSearchParams(window.location.search).get("type");
     if (requested === "profile_hub" || requested === "social") setQrType("social");
+    if (requested === "feedback") setQrType("feedback");
   }, []);
 
   const [frameId, setFrameId] = useState<string | null>(null);
@@ -182,6 +183,7 @@ const Index = () => {
   // Target URL that would be redirected through if tracking is enabled
   const trackableTarget = useMemo(() => {
     switch (qrType) {
+      case "feedback":
       case "url":
         return urlValue;
       case "image":
@@ -212,6 +214,7 @@ const Index = () => {
   // Get current value based on type
   const currentValue = useMemo(() => {
     switch (qrType) {
+      case "feedback":
       case "url":
         return urlValue;
       case "text":
@@ -232,6 +235,7 @@ const Index = () => {
   // Set value based on current type
   const setCurrentValue = (newValue: string) => {
     switch (qrType) {
+      case "feedback":
       case "url":
         setUrlValue(newValue);
         break;
@@ -256,6 +260,7 @@ const Index = () => {
   // Generate QR value based on type
   const qrValue = useMemo(() => {
     switch (qrType) {
+      case "feedback":
       case "url":
         return urlValue;
       case "text":

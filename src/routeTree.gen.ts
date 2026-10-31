@@ -71,6 +71,7 @@ import { Route as BrandSplatRouteImport } from './routes/brand.$'
 import { Route as ClaimTokenRouteImport } from './routes/claim_.$token'
 import { Route as DevEmailsRouteImport } from './routes/dev.emails'
 import { Route as FIdRouteImport } from './routes/f.$id'
+import { Route as FeedbackSlugRouteImport } from './routes/feedback.$slug'
 import { Route as GiftCodeRouteImport } from './routes/gift_.$code'
 import { Route as IdentityRevokeRouteImport } from './routes/identity.revoke'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth.authorize'
@@ -131,8 +132,10 @@ import { Route as AuthMastodonCallbackRouteImport } from './routes/auth_.mastodo
 import { Route as RUAliasRouteImport } from './routes/r.u.$alias'
 import { Route as UUsernameSlugRouteImport } from './routes/u.$username_.$slug'
 import { Route as UUsernameDonateRouteImport } from './routes/u.$username_.donate'
+import { Route as UUsernameFeedbackRouteImport } from './routes/u.$username_.feedback'
 import { Route as UUsernameLiveRouteImport } from './routes/u.$username_.live'
 import { Route as UUsernameTipRouteImport } from './routes/u.$username_.tip'
+import { Route as WSlugFeedbackRouteImport } from './routes/w.$slug_.feedback'
 import { Route as AuthenticatedConsoleAppsIndexRouteImport } from './routes/_authenticated/console.apps.index'
 import { Route as AuthenticatedConsoleAppsAppIdRouteImport } from './routes/_authenticated/console.apps.$appId'
 import { Route as AuthenticatedConsoleAppsNewRouteImport } from './routes/_authenticated/console.apps.new'
@@ -506,6 +509,11 @@ const FIdRoute = FIdRouteImport.update({
   path: '/f/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedbackSlugRoute = FeedbackSlugRouteImport.update({
+  id: '/feedback/$slug',
+  path: '/feedback/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GiftCodeRoute = GiftCodeRouteImport.update({
   id: '/gift_/$code',
   path: '/gift/$code',
@@ -827,6 +835,11 @@ const UUsernameDonateRoute = UUsernameDonateRouteImport.update({
   path: '/u/$username/donate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UUsernameFeedbackRoute = UUsernameFeedbackRouteImport.update({
+  id: '/u/$username_/feedback',
+  path: '/u/$username/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UUsernameLiveRoute = UUsernameLiveRouteImport.update({
   id: '/u/$username_/live',
   path: '/u/$username/live',
@@ -835,6 +848,11 @@ const UUsernameLiveRoute = UUsernameLiveRouteImport.update({
 const UUsernameTipRoute = UUsernameTipRouteImport.update({
   id: '/u/$username_/tip',
   path: '/u/$username/tip',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WSlugFeedbackRoute = WSlugFeedbackRouteImport.update({
+  id: '/w/$slug_/feedback',
+  path: '/w/$slug/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedConsoleAppsIndexRoute =
@@ -1254,6 +1272,7 @@ export interface FileRoutesByFullPath {
   '/claim/$token': typeof ClaimTokenRoute
   '/dev/emails': typeof DevEmailsRoute
   '/f/$id': typeof FIdRoute
+  '/feedback/$slug': typeof FeedbackSlugRoute
   '/gift/$code': typeof GiftCodeRoute
   '/identity/revoke': typeof IdentityRevokeRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -1313,8 +1332,10 @@ export interface FileRoutesByFullPath {
   '/r/u/$alias': typeof RUAliasRoute
   '/u/$username/$slug': typeof UUsernameSlugRoute
   '/u/$username/donate': typeof UUsernameDonateRoute
+  '/u/$username/feedback': typeof UUsernameFeedbackRoute
   '/u/$username/live': typeof UUsernameLiveRoute
   '/u/$username/tip': typeof UUsernameTipRoute
+  '/w/$slug/feedback': typeof WSlugFeedbackRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/console/': typeof AuthenticatedConsoleIndexRoute
   '/console/apps/$appId': typeof AuthenticatedConsoleAppsAppIdRouteWithChildren
@@ -1438,6 +1459,7 @@ export interface FileRoutesByTo {
   '/claim/$token': typeof ClaimTokenRoute
   '/dev/emails': typeof DevEmailsRoute
   '/f/$id': typeof FIdRoute
+  '/feedback/$slug': typeof FeedbackSlugRoute
   '/gift/$code': typeof GiftCodeRoute
   '/identity/revoke': typeof IdentityRevokeRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -1496,8 +1518,10 @@ export interface FileRoutesByTo {
   '/r/u/$alias': typeof RUAliasRoute
   '/u/$username/$slug': typeof UUsernameSlugRoute
   '/u/$username/donate': typeof UUsernameDonateRoute
+  '/u/$username/feedback': typeof UUsernameFeedbackRoute
   '/u/$username/live': typeof UUsernameLiveRoute
   '/u/$username/tip': typeof UUsernameTipRoute
+  '/w/$slug/feedback': typeof WSlugFeedbackRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/console': typeof AuthenticatedConsoleIndexRoute
   '/console/apps/new': typeof AuthenticatedConsoleAppsNewRoute
@@ -1625,6 +1649,7 @@ export interface FileRoutesById {
   '/claim_/$token': typeof ClaimTokenRoute
   '/dev/emails': typeof DevEmailsRoute
   '/f/$id': typeof FIdRoute
+  '/feedback/$slug': typeof FeedbackSlugRoute
   '/gift_/$code': typeof GiftCodeRoute
   '/identity/revoke': typeof IdentityRevokeRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -1684,8 +1709,10 @@ export interface FileRoutesById {
   '/r/u/$alias': typeof RUAliasRoute
   '/u/$username_/$slug': typeof UUsernameSlugRoute
   '/u/$username_/donate': typeof UUsernameDonateRoute
+  '/u/$username_/feedback': typeof UUsernameFeedbackRoute
   '/u/$username_/live': typeof UUsernameLiveRoute
   '/u/$username_/tip': typeof UUsernameTipRoute
+  '/w/$slug_/feedback': typeof WSlugFeedbackRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/console/': typeof AuthenticatedConsoleIndexRoute
   '/_authenticated/console/apps/$appId': typeof AuthenticatedConsoleAppsAppIdRouteWithChildren
@@ -1814,6 +1841,7 @@ export interface FileRouteTypes {
     | '/claim/$token'
     | '/dev/emails'
     | '/f/$id'
+    | '/feedback/$slug'
     | '/gift/$code'
     | '/identity/revoke'
     | '/oauth/authorize'
@@ -1873,8 +1901,10 @@ export interface FileRouteTypes {
     | '/r/u/$alias'
     | '/u/$username/$slug'
     | '/u/$username/donate'
+    | '/u/$username/feedback'
     | '/u/$username/live'
     | '/u/$username/tip'
+    | '/w/$slug/feedback'
     | '/admin/'
     | '/console/'
     | '/console/apps/$appId'
@@ -1998,6 +2028,7 @@ export interface FileRouteTypes {
     | '/claim/$token'
     | '/dev/emails'
     | '/f/$id'
+    | '/feedback/$slug'
     | '/gift/$code'
     | '/identity/revoke'
     | '/oauth/authorize'
@@ -2056,8 +2087,10 @@ export interface FileRouteTypes {
     | '/r/u/$alias'
     | '/u/$username/$slug'
     | '/u/$username/donate'
+    | '/u/$username/feedback'
     | '/u/$username/live'
     | '/u/$username/tip'
+    | '/w/$slug/feedback'
     | '/admin'
     | '/console'
     | '/console/apps/new'
@@ -2184,6 +2217,7 @@ export interface FileRouteTypes {
     | '/claim_/$token'
     | '/dev/emails'
     | '/f/$id'
+    | '/feedback/$slug'
     | '/gift_/$code'
     | '/identity/revoke'
     | '/oauth/authorize'
@@ -2243,8 +2277,10 @@ export interface FileRouteTypes {
     | '/r/u/$alias'
     | '/u/$username_/$slug'
     | '/u/$username_/donate'
+    | '/u/$username_/feedback'
     | '/u/$username_/live'
     | '/u/$username_/tip'
+    | '/w/$slug_/feedback'
     | '/_authenticated/admin/'
     | '/_authenticated/console/'
     | '/_authenticated/console/apps/$appId'
@@ -2364,6 +2400,7 @@ export interface RootRouteChildren {
   ClaimTokenRoute: typeof ClaimTokenRoute
   DevEmailsRoute: typeof DevEmailsRoute
   FIdRoute: typeof FIdRoute
+  FeedbackSlugRoute: typeof FeedbackSlugRoute
   GiftCodeRoute: typeof GiftCodeRoute
   IdentityRevokeRoute: typeof IdentityRevokeRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
@@ -2397,8 +2434,10 @@ export interface RootRouteChildren {
   RUAliasRoute: typeof RUAliasRoute
   UUsernameSlugRoute: typeof UUsernameSlugRoute
   UUsernameDonateRoute: typeof UUsernameDonateRoute
+  UUsernameFeedbackRoute: typeof UUsernameFeedbackRoute
   UUsernameLiveRoute: typeof UUsernameLiveRoute
   UUsernameTipRoute: typeof UUsernameTipRoute
+  WSlugFeedbackRoute: typeof WSlugFeedbackRoute
   ApiPublicAuthProvidersRoute: typeof ApiPublicAuthProvidersRoute
   ApiPublicBadgeHandleRoute: typeof ApiPublicBadgeHandleRoute
   ApiPublicBlueskyCallbackRoute: typeof ApiPublicBlueskyCallbackRoute
@@ -2879,6 +2918,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feedback/$slug': {
+      id: '/feedback/$slug'
+      path: '/feedback/$slug'
+      fullPath: '/feedback/$slug'
+      preLoaderRoute: typeof FeedbackSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gift_/$code': {
       id: '/gift_/$code'
       path: '/gift/$code'
@@ -3299,6 +3345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameDonateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$username_/feedback': {
+      id: '/u/$username_/feedback'
+      path: '/u/$username/feedback'
+      fullPath: '/u/$username/feedback'
+      preLoaderRoute: typeof UUsernameFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$username_/live': {
       id: '/u/$username_/live'
       path: '/u/$username/live'
@@ -3311,6 +3364,13 @@ declare module '@tanstack/react-router' {
       path: '/u/$username/tip'
       fullPath: '/u/$username/tip'
       preLoaderRoute: typeof UUsernameTipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/w/$slug_/feedback': {
+      id: '/w/$slug_/feedback'
+      path: '/w/$slug/feedback'
+      fullPath: '/w/$slug/feedback'
+      preLoaderRoute: typeof WSlugFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/console/apps/': {
@@ -4014,6 +4074,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClaimTokenRoute: ClaimTokenRoute,
   DevEmailsRoute: DevEmailsRoute,
   FIdRoute: FIdRoute,
+  FeedbackSlugRoute: FeedbackSlugRoute,
   GiftCodeRoute: GiftCodeRoute,
   IdentityRevokeRoute: IdentityRevokeRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
@@ -4047,8 +4108,10 @@ const rootRouteChildren: RootRouteChildren = {
   RUAliasRoute: RUAliasRoute,
   UUsernameSlugRoute: UUsernameSlugRoute,
   UUsernameDonateRoute: UUsernameDonateRoute,
+  UUsernameFeedbackRoute: UUsernameFeedbackRoute,
   UUsernameLiveRoute: UUsernameLiveRoute,
   UUsernameTipRoute: UUsernameTipRoute,
+  WSlugFeedbackRoute: WSlugFeedbackRoute,
   ApiPublicAuthProvidersRoute: ApiPublicAuthProvidersRoute,
   ApiPublicBadgeHandleRoute: ApiPublicBadgeHandleRoute,
   ApiPublicBlueskyCallbackRoute: ApiPublicBlueskyCallbackRoute,

@@ -64,6 +64,7 @@ export const COMPONENT_LIBRARY: LibraryGroup[] = [
     items: [
       { kind: "newsletter", tag: "contact", label: "Nieuwsbrief", note: "Laat bezoekers inschrijven", isNew: true },
       { kind: "contact_form", tag: "contact", label: "Contactformulier", note: "Direct bericht", isNew: true },
+      { kind: "feedback", tag: "community", label: "Feedback & Reviews", note: "Sterren en geschreven ervaringen", isNew: true },
       { kind: "live_poll", tag: "community", label: "Live Poll", note: "Stel je volgers een vraag" },
       { kind: "widget:questions", tag: "community", label: "Anonieme Vragenbox", note: "Laat bezoekers anoniem vragen stellen" },
       { kind: "widget:guestbook", tag: "community", label: "Prikbord / Guestbook", note: "Berichten van leden" },
@@ -101,7 +102,7 @@ export const LIVE_COMPONENTS: { provider: string; note: string }[] = [
 ];
 
 /** Curated mix voor "Aanbevolen". */
-const SUGGESTED_KINDS = ["link", "instagram", "text", "video", "media_gallery", "spotify", "newsletter", "widget:questions", "widget:badges", "widget:reach", "calendly", "booking_request"];
+const SUGGESTED_KINDS = ["link", "instagram", "text", "video", "media_gallery", "spotify", "newsletter", "feedback", "widget:questions", "widget:badges", "widget:reach", "calendly", "booking_request"];
 const SUGGESTED_LIVE = ["spotify", "github", "youtube", "bluesky", "wsocial", "lichess", "chesscom", "wakatime"];
 
 type CategoryId = "standard" | "socials" | "media" | "leads" | "live" | "business" | "all";
@@ -393,7 +394,7 @@ export function AddComponentModal({ open, onClose, onAdd, handle, onWidget }: Pr
                   >
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-1.5 text-sm font-medium">
-                        {item.label}
+                        {item.kind === "feedback" ? t("feedback.title") : item.label}
                         {item.isNew && (
                           <span className="rounded-full bg-muted px-1.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Nieuw</span>
                         )}

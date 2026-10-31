@@ -11,6 +11,7 @@ import { checkUrl, normalizeUrlInput } from "@/lib/url-validation";
 import { ProfileHubPicker } from "./ProfileHubPicker";
 import { AddressSearch } from "./AddressSearch";
 import { useI18n } from "@/lib/i18n";
+import { FeedbackQRInput } from "./FeedbackQRInput";
 
 interface QRInputFieldsProps {
   paymentValues?: Record<string, string>;
@@ -271,6 +272,8 @@ export function QRInputFields({
   }
 
   switch (qrType) {
+    case "feedback":
+      return <FeedbackQRInput value={value} onChange={onValueChange} />;
     case "url":
       return (
         <UrlInput

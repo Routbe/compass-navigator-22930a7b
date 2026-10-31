@@ -639,6 +639,31 @@ export interface PublicFediverseEmailOtpRow {
   "created_at": string | Date;
 }
 
+export interface PublicFeedbackFormsRow {
+  "id": string;
+  "user_id": string;
+  "workspace_id": string | null;
+  "title": string;
+  "type": string;
+  "show_on_profile": boolean;
+  "full_page": boolean;
+  "slug": string;
+  "profile_space": string;
+  "profile_handle": string;
+  "created_at": string | Date;
+}
+
+export interface PublicFeedbackResponsesRow {
+  "id": string;
+  "form_id": string;
+  "rating": number | null;
+  "comment": string | null;
+  "reviewer_name": string | null;
+  "allow_featured": boolean;
+  "is_featured": boolean;
+  "created_at": string | Date;
+}
+
 export interface PublicForwardingConfirmationSendsRow {
   "id": string;
   "user_id": string;
@@ -1925,6 +1950,8 @@ export interface DbTables {
   "public.email_aliases": PublicEmailAliasesRow;
   "public.entitlement_overrides": PublicEntitlementOverridesRow;
   "public.fediverse_email_otp": PublicFediverseEmailOtpRow;
+  "public.feedback_forms": PublicFeedbackFormsRow;
+  "public.feedback_responses": PublicFeedbackResponsesRow;
   "public.forwarding_confirmation_sends": PublicForwardingConfirmationSendsRow;
   "public.gallery_objects": PublicGalleryObjectsRow;
   "public.gift_cards": PublicGiftCardsRow;
