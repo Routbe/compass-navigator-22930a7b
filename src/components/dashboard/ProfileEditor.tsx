@@ -612,7 +612,7 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
     }
     setSaving(false);
     if (!result.ok) {
-      const info: SaveErrorInfo = ("error" in result && result.error) ? result.error : classifySaveError(result.reason);
+      const info: SaveErrorInfo = result.error;
       // Conflict (e.g. a QR save bumped the revision): adopt the newest revision and
       // its QR settings, then save again instead of retrying a stale revision forever.
       const conflict = "conflict" in result ? result.conflict : null;
