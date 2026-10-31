@@ -42,21 +42,36 @@ function GoPage() {
 
   if (needsConfirm && target) {
     let host = target;
+    let secure = false;
     try {
-      host = new URL(target).host;
+      const u = new URL(target);
+      host = u.host;
+      secure = u.protocol === "https:";
     } catch {
       /* keep raw */
     }
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6 px-6 text-center">
         <RoutLogo size={26} />
-        <h1 className="font-display text-2xl text-foreground">You are leaving ROUT</h1>
-        <p className="max-w-md text-sm text-muted-foreground">
-          This link sends you to <span className="font-mono text-foreground">{host}</span>. Only continue if you trust it.
-        </p>
-        <a href={target} rel="noopener noreferrer nofollow" className="text-sm text-foreground underline underline-offset-4">
-          Continue to {host}
+        <h1 className="font-display text-2xl text-foreground">Je verlaat ROUT</h1>
+        <div className="w-full max-w-sm space-y-3 rounded-2xl border border-border bg-card p-4 text-left text-sm">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Bestemming</p>
+            <p className="break-all font-mono text-foreground">{host}</p>
+          </div>
+          <ul className="space-y-1 text-muted-foreground">
+            <li>{secure ? "✓ Beveiligde verbinding (https)" : "⚠ Geen beveiligde verbinding (geen https)"}</li>
+            <li>⚠ De maker van deze link is nog niet geverifieerd bij ROUT</li>
+          </ul>
+        </div>
+        <a
+          href={target}
+          rel="noopener noreferrer nofollow"
+          className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
+        >
+          ➔ Ga door naar externe site
         </a>
+        <p className="max-w-sm text-xs text-muted-foreground">Ga alleen verder als je deze website vertrouwt.</p>
       </div>
     );
   }
