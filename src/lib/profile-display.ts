@@ -53,11 +53,12 @@ export type BackgroundStyle =
   | "spotlight";
 export type Typography = "sans" | "serif" | "mono";
 /** Avatarvorm op het publieke profiel. */
-export type AvatarShape = "circle" | "rounded" | "hexagon";
+export type AvatarShape = "circle" | "rounded" | "squircle" | "hexagon";
 
 export const AVATAR_SHAPES: { id: AvatarShape; label: string }[] = [
   { id: "circle", label: "Cirkel" },
   { id: "rounded", label: "Vierkant" },
+  { id: "squircle", label: "Squircle" },
   { id: "hexagon", label: "Hexagon" },
 ];
 
@@ -67,6 +68,7 @@ export function avatarShapeStyle(shape: AvatarShape): {
   style?: Record<string, string>;
 } {
   if (shape === "rounded") return { className: "rounded-2xl" };
+  if (shape === "squircle") return { className: "rounded-[38%]" };
   if (shape === "hexagon")
     return {
       className: "rounded-none",

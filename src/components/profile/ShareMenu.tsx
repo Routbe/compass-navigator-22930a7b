@@ -30,10 +30,12 @@ type Props = {
   qrStyle?: ProfileQrStyle | null;
   className?: string;
   style?: React.CSSProperties;
+  /** Square icon button (compact action bars). */
+  iconOnly?: boolean;
 };
 
 /** "Deel" menu: copy link, QR, business card (PNG/PDF) and the NFC waitlist teaser. */
-export function ShareMenu({ url, handle, name, bio, avatarUrl, showNfc, qrStyle, className, style }: Props) {
+export function ShareMenu({ url, handle, name, bio, avatarUrl, showNfc, qrStyle, className, style, iconOnly }: Props) {
   const { t } = useTranslation();
   const [nfcOpen, setNfcOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
@@ -97,10 +99,12 @@ export function ShareMenu({ url, handle, name, bio, avatarUrl, showNfc, qrStyle,
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className={cn("inline-flex h-9 items-center gap-1.5 rounded-xl border border-border px-3 text-xs font-medium transition-colors hover:bg-muted", className)}
+            aria-label={t("profile.shareLabel")}
+            title={t("profile.shareLabel")}
+            className={cn(iconOnly ? "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border transition-colors hover:bg-muted" : "inline-flex h-9 items-center gap-1.5 rounded-xl border border-border px-3 text-xs font-medium transition-colors hover:bg-muted", className)}
             style={style}
           >
-            <Share2 className="h-3.5 w-3.5" aria-hidden />  {t("profile.shareLabel")} </button>
+            <Share2 className={iconOnly ? "h-4 w-4" : "h-3.5 w-3.5"} aria-hidden />{iconOnly ? null : <> {t("profile.shareLabel")} </>}</button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-60">
           <DropdownMenuItem onSelect={() => setQrOpen(true)} className="justify-center p-3" aria-label={t("profile.fullscreenQr")}>
