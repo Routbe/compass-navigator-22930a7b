@@ -1,8 +1,6 @@
 import { ScopedThemeBar } from "@/components/dashboard/editor/ScopedThemeBar";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { FileUploadInput } from "@/components/FileUploadInput";
 import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AvatarFramePicker } from "@/components/studio/AvatarFramePicker";
 import { ProPill } from "@/components/studio/ProPill";
