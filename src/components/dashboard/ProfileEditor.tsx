@@ -619,8 +619,9 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
       if (info.code === "conflict" && conflict && conflictRebases.current < 3) {
         conflictRebases.current += 1;
         setDraftRevision(conflict.currentRevision);
-        if (conflict.qrSettings && typeof conflict.qrSettings === "object") {
-          setPrefs((p) => ({ ...p, qrSettings: conflict.qrSettings }) as typeof p);
+        if (conflict.qrSettingsJson) {
+          const qr = JSON.parse(conflict.qrSettingsJson) as unknown;
+          setPrefs((p) => ({ ...p, qrSettings: qr }) as typeof p);
         }
         setRetryIn((n) => n + 1);
         return;

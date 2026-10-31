@@ -7,7 +7,7 @@ export type DraftSaveFailure = {
   reason: string;
   error: SaveErrorInfo;
   /** Present on conflicts so the editor can rebase instead of failing forever. */
-  conflict: { currentRevision: number; qrSettings: unknown } | null;
+  conflict: { currentRevision: number; qrSettingsJson: string | null } | null;
 };
 
 /**
