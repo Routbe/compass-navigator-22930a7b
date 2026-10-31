@@ -198,27 +198,6 @@ export function ProfileBasicInfoAccordion({
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-medium text-muted-foreground">{t("studio.basic.avatarShape")}</label>
-                <div className="flex gap-2">
-                  {AVATAR_SHAPES.map((shape) => (
-                    <button
-                      key={shape.id}
-                      type="button"
-                      onClick={() => setPref("avatarShape", shape.id as AvatarShape)}
-                      aria-pressed={prefs.avatarShape === shape.id}
-                      className={cn(
-                        "flex-1 rounded-xl border px-2 py-2 text-[11px] font-medium transition-colors",
-                        prefs.avatarShape === shape.id
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-border hover:bg-muted",
-                      )}
-                    >
-                      {t(`studio.avatarShape.${shape.id}`)}
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
 
             <div className="min-w-0 flex-1 space-y-4">

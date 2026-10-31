@@ -20,7 +20,6 @@ import type { StudioTab } from "@/types/profile-editor";
 import {
   BarChart3,
   Check,
-  Copy,
   Eye,
   Folder,
   Globe,
@@ -144,6 +143,7 @@ import { BlueskyWizard } from "@/components/dashboard/BlueskyWizard";
 import { LiveStatusAccordion } from "@/components/studio/LiveStatusAccordion";
 import { ShareMenu } from "@/components/profile/ShareMenu";
 import { DesignTemplatesPanel } from "@/components/settings/DesignTemplatesPanel";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SaveErrorDialog } from "@/components/dashboard/SaveErrorDialog";
 import { classifySaveError, type SaveErrorInfo } from "@/lib/save-errors";
 

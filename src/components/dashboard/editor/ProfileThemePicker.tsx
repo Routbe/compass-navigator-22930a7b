@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { StudioSectionIcon } from "@/components/studio/StudioSectionIcon";
 import {
   AVATAR_FRAMES,
+  AVATAR_SHAPES,
   BACKGROUND_STYLES,
   BANNER_DIRECTIONS,
   BANNER_STYLES,
@@ -30,6 +31,8 @@ import {
   type ProfileDisplayPrefs,
 } from "@/lib/profile-display";
 import { CARD_STYLES, themeOf } from "@/lib/profile";
+
+const AVATAR_SHAPE_LABELS: Record<string, string> = { circle: "Rond", rounded: "Afgerond", squircle: "Squircle", hexagon: "Zeshoek" };
 
 interface ProfileThemePickerProps {
   displayName: string;
@@ -90,44 +93,23 @@ export function ProfileThemePicker({
         </AccordionTrigger>
         <AccordionContent className="space-y-4 pb-5">
           <div className="space-y-2">
-            <label className="input-label" htmlFor="p-name">
-              Weergavenaam
-            </label>
-            <Input
-              id="p-name"
-              value={displayName}
-              maxLength={60}
-              onChange={(e) => onDisplayNameChange(e.target.value)}
-              className="input-field h-11 rounded-xl"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="input-label" htmlFor="p-tag">
-              Bio / Tagline
-            </label>
-            <Input
-              id="p-tag"
-              value={tagline}
-              maxLength={120}
-              placeholder="Sovereign QR infrastructure"
-              onChange={(e) => onTaglineChange(e.target.value)}
-              className="input-field h-11 rounded-xl"
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full border border-border">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="Avatar preview" className="h-full w-full object-cover" />
-              ) : null}
+            <p className="input-label">Avatarvorm</p>
+            <div className="grid grid-cols-4 gap-2">
+              {AVATAR_SHAPES.map((shape) => (
+                <button
+                  key={shape.id}
+                  type="button"
+                  onClick={() => setPref("avatarShape", shape.id)}
+                  aria-pressed={prefs.avatarShape === shape.id}
+                  className={cn(
+                    "rounded-xl border px-2 py-2 text-[11px] font-medium transition-colors",
+                    prefs.avatarShape === shape.id ? "border-foreground bg-foreground text-background" : "border-border hover:bg-muted",
+                  )}
+                >
+                  {AVATAR_SHAPE_LABELS[shape.id]}
+                </button>
+              ))}
             </div>
-            <div className="min-w-0 flex-1">
-              <FileUploadInput type="image" value={avatarUrl} onValueChange={onAvatarUrlChange} />
-            </div>
-            {avatarUrl && (
-              <Button variant="ghost" size="sm" onClick={() => onAvatarUrlChange("")}>
-                Remove
-              </Button>
-            )}
           </div>
 
           <div className="space-y-2 border-t border-border pt-4">
