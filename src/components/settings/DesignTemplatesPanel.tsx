@@ -16,7 +16,7 @@ import {
 const KEY = ["design-templates"];
 
 /** Saved card designs: keep several looks and switch back any time. */
-export function DesignTemplatesPanel() {
+export function DesignTemplatesPanel({ compact = false }: { compact?: boolean } = {}) {
   const qc = useQueryClient();
   const list = useQuery({ queryKey: KEY, queryFn: useServerFn(listDesignTemplates) });
   const save = useServerFn(saveCurrentDesign);
@@ -40,11 +40,13 @@ export function DesignTemplatesPanel() {
   };
 
   return (
-    <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
+    <section className={compact ? "space-y-3" : "space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5"}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="flex items-center gap-2 text-lg font-medium">
-          <Layers className="h-4 w-4" /> Mijn ontwerpen
-        </h2>
+        {compact ? <span /> : (
+          <h2 className="flex items-center gap-2 text-lg font-medium">
+            <Layers className="h-4 w-4" /> Mijn ontwerpen
+          </h2>
+        )}
         <Button variant="outline" size="sm" disabled={busy} onClick={() => run(() => save({ data: {} }), "Huidig ontwerp bewaard.")}>
           <Plus className="h-4 w-4" /> Huidig ontwerp bewaren
         </Button>

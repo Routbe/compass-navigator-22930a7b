@@ -9,7 +9,7 @@
 - [x] Round 4: YouTube theme, 15-min TTL, push updates, LIVE badge, /live link
 
 ## Open
-- [ ] Round 5: Studio cleanup (avatar shape move, presets icon, share window in action bar)
+- [x] Round 5: Studio cleanup (avatar shape in Vormgeving + squircle, presets icon, share icon)
 - [ ] Round 6: Feedback & reviews (migration 0134)
 - [ ] Round 7: Events + .ics (migration 0135)
 - [ ] Round 8: Steam card (migration 0136; needs STEAM_WEB_API_KEY) + CSS effects

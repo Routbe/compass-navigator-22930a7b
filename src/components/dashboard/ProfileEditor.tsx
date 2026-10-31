@@ -20,7 +20,6 @@ import type { StudioTab } from "@/types/profile-editor";
 import {
   BarChart3,
   Check,
-  Copy,
   Eye,
   Folder,
   Globe,
@@ -62,7 +61,7 @@ import { FileUploadInput } from "@/components/FileUploadInput";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useEditorHistory } from "@/hooks/useEditorHistory";
-import { Undo2, Redo2, Trash2 } from "lucide-react";
+import { Undo2, Redo2, Trash2, Save } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { useUrlStyle } from "@/hooks/useUrlStyle";
@@ -144,6 +143,7 @@ import { BlueskyWizard } from "@/components/dashboard/BlueskyWizard";
 import { LiveStatusAccordion } from "@/components/studio/LiveStatusAccordion";
 import { ShareMenu } from "@/components/profile/ShareMenu";
 import { DesignTemplatesPanel } from "@/components/settings/DesignTemplatesPanel";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SaveErrorDialog } from "@/components/dashboard/SaveErrorDialog";
 import { classifySaveError, type SaveErrorInfo } from "@/lib/save-errors";
 
@@ -875,18 +875,6 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
           </a>
           <button
             type="button"
-            onClick={() => {
-              void navigator.clipboard.writeText(
-                live.url ?? `https://rout.be${styledProfilePath(normalized || "handle", urlStyle)}`,
-              );
-              toast.success(t("studio.editor.copied"));
-            }}
-            className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-border px-2.5 text-[11px] font-medium hover:bg-muted"
-          >
-            <Copy className="h-3.5 w-3.5" aria-hidden /> {t("studio.editor.copy")}
-          </button>
-          <button
-            type="button"
             onClick={openHandleEditor}
             aria-label={t("studio.editor.editHandle")}
             title={t("studio.editor.editHandle")}
@@ -927,19 +915,35 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
           >
             <Pencil className="h-4 w-4" aria-hidden />
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              void navigator.clipboard.writeText(
-                live.url ?? `https://rout.be${styledProfilePath(normalized || "handle", urlStyle)}`,
-              );
-              toast.success(t("studio.editor.copied"));
-            }}
-            aria-label={t("studio.editor.copy")}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border hover:bg-muted md:hidden"
-          >
-            <Copy className="h-4 w-4" aria-hidden />
-          </button>
+          <ShareMenu
+            iconOnly
+            className="md:hidden"
+            url={`https://rout.be${styledProfilePath(claimed ?? normalized, urlStyle)}`}
+            handle={claimed ?? ""}
+            name={displayName}
+            bio={tagline}
+            avatarUrl={avatarUrl}
+            qrStyle={prefs.qrSettings ?? null}
+            showNfc
+          />
+          <Dialog>
+            <DialogTrigger asChild>
+              <button
+                type="button"
+                aria-label="Mijn ontwerpen"
+                title="Mijn ontwerpen"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border transition-colors hover:bg-muted"
+              >
+                <Save className="h-4 w-4" aria-hidden />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Mijn ontwerpen</DialogTitle>
+              </DialogHeader>
+              <DesignTemplatesPanel compact />
+            </DialogContent>
+          </Dialog>
           <a
             href={publicPath}
             target="_blank"
@@ -1208,7 +1212,6 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
               />
           )}
 
-          {tab === "design" && <DesignTemplatesPanel />}
           {tab === "design" && (
             <Accordion type="single" collapsible className="space-y-3">
               <ProfileThemePicker

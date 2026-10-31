@@ -9,7 +9,7 @@
 import { bunny } from "@/lib/brand/logo";
 
 export type OgBadge = "verified" | "human" | "domain" | "influencer" | null;
-export type OgAvatarShape = "circle" | "rounded" | "hexagon";
+export type OgAvatarShape = "circle" | "rounded" | "squircle" | "hexagon";
 
 export interface OgCardInput {
   handle: string;
@@ -89,6 +89,7 @@ export function luminance(hex: string): number {
 
 function avatarClip(shape: OgAvatarShape, cx: number, cy: number, r: number) {
   if (shape === "rounded") return `<rect x="${cx - r}" y="${cy - r}" width="${r * 2}" height="${r * 2}" rx="${r * 0.28}"/>`;
+  if (shape === "squircle") return `<rect x="${cx - r}" y="${cy - r}" width="${r * 2}" height="${r * 2}" rx="${r * 0.76}"/>`;
   if (shape === "hexagon") {
     const pts = [
       [0.5, 0], [0.93, 0.25], [0.93, 0.75], [0.5, 1], [0.07, 0.75], [0.07, 0.25],
