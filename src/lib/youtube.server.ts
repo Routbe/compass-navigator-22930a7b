@@ -119,6 +119,7 @@ export async function exchangeYouTubeCode(userId: string, code: string, origin?:
   await storeTokens(userId, t);
   // Prime the card so the Studio preview is instant; failures are non-fatal.
   await refreshCard(userId).catch(() => null);
+  void subscribeYouTubePush(userId, origin).catch(() => false);
 }
 
 /** Valid access token, refreshing when expired; marks the link disconnected when refresh fails. */
@@ -261,4 +262,71 @@ export async function publicYouTubeOwner(handle: string): Promise<string | null>
       and coalesce((p.display_prefs ->> 'publicProfile')::boolean, true)
     limit 1`;
   return (rows[0]?.["user_id"] as string | undefined) ?? null;
+}
+
+// ---- Live presence (PubSubHubbub push, 15-minute TTL) ----
+
+async function hubServerSecret(): Promise<string> {
+  const { resolveAuthSecret } = await import("@/lib/better-auth.server");
+  const s = resolveAuthSecret();
+  if (!s) throw new Error("hub_secret_unavailable");
+  return s.secret;
+}
+
+/** Subscribes the owner's channel feed at YouTube's hub (fire-and-forget on connect). */
+export async function subscribeYouTubePush(userId: string, origin?: Request | string): Promise<boolean> {
+  const { YOUTUBE_HUB_URL, feedTopic, hubSecret } = await import("./youtube-presence");
+  const rows = (await sql`select youtube_card_json->>'channelId' as cid from public.user_integrations
+    where user_id = ${userId} and provider = 'youtube'`) as { cid: string | null }[];
+  const channelId = rows[0]?.cid;
+  if (!channelId) return false;
+  const base = new URL(youtubeRedirectUri(origin)).origin;
+  const body = new URLSearchParams({
+    "hub.mode": "subscribe",
+    "hub.topic": feedTopic(channelId),
+    "hub.callback": `${base}/api/public/youtube/push`,
+    "hub.secret": hubSecret(await hubServerSecret(), channelId),
+    "hub.lease_seconds": String(10 * 24 * 3600),
+  });
+  const res = await fetch(YOUTUBE_HUB_URL, { method: "POST", body, signal: AbortSignal.timeout(8000) });
+  if (!res.ok && res.status !== 202) console.warn(`[youtube-push] subscribe ${res.status}`);
+  return res.ok || res.status === 202;
+}
+
+/** True when the topic belongs to a connected channel (hub verify challenge). */
+export async function isKnownYouTubeTopic(topic: string): Promise<boolean> {
+  const cid = /channel_id=([\w-]{10,40})/.exec(topic)?.[1];
+  if (!cid) return false;
+  const rows = await sql`select 1 from public.user_integrations
+    where provider = 'youtube' and youtube_card_json->>'channelId' = ${cid} limit 1`;
+  return rows.length > 0;
+}
+
+/** Handles a signed hub push: confirms live state via the owner's API token and stores it. */
+export async function handleYouTubePush(body: string, signature: string | null): Promise<number> {
+  const p = await import("./youtube-presence");
+  const entries = p.parseYouTubeFeed(body);
+  const first = entries[0];
+  if (!first) return 204;
+  if (!p.verifyHubSignature(body, signature, p.hubSecret(await hubServerSecret(), first.channelId))) return 403;
+  const rows = (await sql`select user_id from public.user_integrations
+    where provider = 'youtube' and youtube_card_json->>'channelId' = ${first.channelId} limit 1`) as { user_id: string }[];
+  const userId = rows[0]?.user_id;
+  if (!userId) return 204;
+  const v = await ytGet(userId, `videos?part=snippet&id=${encodeURIComponent(first.videoId)}`).catch(() => null);
+  const isLive = v?.["items"]?.[0]?.snippet?.liveBroadcastContent === "live";
+  const presence = { isLive, videoId: first.videoId, title: first.title };
+  await sql`update public.user_integrations set youtube_presence = ${JSON.stringify(presence)}::jsonb,
+      youtube_presence_at = now() where user_id = ${userId} and provider = 'youtube'`;
+  // New upload: refresh the cached card so "latest video" is current.
+  void refreshCard(userId).catch(() => null);
+  return 204;
+}
+
+/** Stored presence with the 15-minute TTL applied (stale "live" becomes offline). */
+export async function youtubePresence(userId: string) {
+  const { effectivePresence } = await import("./youtube-presence");
+  const rows = (await sql`select youtube_presence, youtube_presence_at from public.user_integrations
+    where user_id = ${userId} and provider = 'youtube'`) as { youtube_presence: never; youtube_presence_at: string | null }[];
+  return effectivePresence(rows[0]?.youtube_presence ?? null, rows[0]?.youtube_presence_at ?? null);
 }
