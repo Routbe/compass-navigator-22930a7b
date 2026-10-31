@@ -1,3 +1,4 @@
+import { isTrustedLinkOwner } from "@/lib/short-link-trust";
 /**
  * Edge-side short-link resolution.
  *
@@ -98,13 +99,38 @@ export async function resolveShortLink(
   let trustedOwner = false;
   try {
     const ownerRows = (await sql.query(
-      `select p.status, coalesce(p.verified, false) as verified from public.tracked_qrs q
+      `select p.status, coalesce(p.verified, false) as verified, p.created_at,
+              coalesce(vi.tier_1_real_human, false) as tier1, coalesce(vi.tier_2_legal_identity, false) as tier2
+         from public.tracked_qrs q
          join public.profiles p on p.id = q.user_id
+         left join public.verified_identities vi on vi.user_id = q.user_id
         where q.id = $1 limit 1`,
       [row.id],
-    )) as { status: string | null; verified: boolean }[];
-    if (ownerRows[0]?.status === "frozen") return { status: "paused" };
-    trustedOwner = ownerRows[0]?.verified === true;
+    )) as { status: string | null; verified: boolean; created_at: string | null; tier1: boolean; tier2: boolean }[];
+    const owner = ownerRows[0];
+    if (owner?.status === "frozen") return { status: "paused" };
+    let emailVerified = false;
+    try {
+      const em = (await sql.query(
+        `select coalesce(a."emailVerified", false) as ev from public.tracked_qrs q
+           join public.users u on u.id = q.user_id
+           join neon_auth."user" a on a.id = u.auth_user_id
+          where q.id = $1 limit 1`,
+        [row.id],
+      )) as { ev: boolean }[];
+      emailVerified = em[0]?.ev === true;
+    } catch {
+      // Unknown email status counts as unconfirmed (warning page shown).
+    }
+    trustedOwner = owner
+      ? isTrustedLinkOwner({
+          tier1RealHuman: owner.tier1 === true,
+          tier2LegalIdentity: owner.tier2 === true,
+          verified: owner.verified === true,
+          emailVerified,
+          accountCreatedAt: owner.created_at ? new Date(owner.created_at) : null,
+        })
+      : false;
   } catch {
     // A failing owner lookup must never break a healthy redirect.
   }
@@ -122,7 +148,7 @@ export async function resolveShortLink(
       () => undefined,
     );
 
-  // Only verified owners redirect directly; other links show the /go "you are leaving ROUT" page.
+  // Trusted owners (tier 1/2, verified, or confirmed email older than 7 days) redirect directly; other links show the /go "you are leaving ROUT" page.
   return { status: "ok", targetUrl: shortLinkDestination(row.target_url, trustedOwner), id: row.id };
 }
 
