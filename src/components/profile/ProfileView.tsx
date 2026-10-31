@@ -609,7 +609,7 @@ export function ProfileView({
             ) : b.kind === "widget:badges" ? (
               prefs.badgeShowcaseVisible ? <div key={b.id} className="w-full lg:col-span-full"><BadgeShowcase userId={profile.id} theme={t} /></div> : null
             ) : b.kind === "widget:youtube" ? (
-              profile.username ? <div key={b.id} className="w-full lg:col-span-full"><ProfileYouTubeCard handle={profile.username} theme={t} /></div> : null
+              profile.username ? <div key={b.id} className="w-full lg:col-span-full"><ProfileYouTubeCard handle={profile.username} theme={t} cardStyle={styleFor(b.kind)} /></div> : null
             ) : b.kind === "live" ? (
               profile.username ? <div key={b.id} className="w-full lg:col-span-full"><ProfileIntegrations handle={profile.username} theme={t} buttonStyle={styleFor(b.kind)} provider={b.value} stats={b.stats} /></div> : null
             ) : b.kind === "widget:reach" ? (
