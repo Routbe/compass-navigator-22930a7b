@@ -1,4 +1,5 @@
 ## Payments & badges rules
+- Feedback is scoped to an explicit root/alias/workspace binding; anonymous reads/submissions use narrow DB functions that enforce profile visibility and rating ranges. Featuring requires respondent consent; Studio mutations require active-scope developer access. Why: no cross-tenant or cross-namespace reviews, private response leaks or non-consensual testimonials.
 - First-use tours store authenticated, per-area completion in profiles.display_prefs.firstUseTours; no browser storage or auto-auth is involved. Why: guidance follows the member across devices without changing login behavior.
 - Root and alias profile saves share profile-image-url.ts for image validation, allowing only the exact first-party avatar fallback among relative URLs. Why: uploaded photos must persist without accepting arbitrary application paths.
 - profile-surface.ts derives automatic card, border and text roles from the selected solid canvas; explicit user colors remain overrides. Why: frames and messages must not inherit an incompatible old preset.

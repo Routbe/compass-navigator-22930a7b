@@ -5,6 +5,7 @@ import { profileImageSrc } from "@/lib/image-proxy-rules";
 import { socialHandleKey } from "@/lib/social-block-rules";
 import { useTranslation } from "react-i18next";
 import { ProfileYouTubeCard } from "@/components/profile/YouTubeCard";
+import { ProfileFeedback } from "@/components/profile/FeedbackCard";
 import { isProfileSectionKind, usesSectionFallback } from "@/lib/profile-section-blocks";
 import { CustomStatusPill, NowPlaying, useNowPlaying } from "@/components/profile/NowPlaying";
 import { SnapchatProfile } from "@/components/profile/SnapchatProfile";
@@ -457,6 +458,7 @@ export function ProfileView({
         <ProfilePassport handle={profile.username} theme={t} />
         {profile.username && prefs.guestbookEnabled && usesSectionFallback(profile.blocks, "widget:guestbook") && <ProfileGuestbook handle={profile.username} theme={t} />}
         {profile.username && prefs.questionsEnabled && <ProfileQuestions handle={profile.username} theme={t} />}
+        {profile.username && !profile.blocks.some(b => b.kind === "feedback") && <ProfileFeedback handle={profile.username} space={free ? "alias" : "root"} style={styleFor("feedback")} />}
 
         {earlyBeliever && (
           <PioneerBadge
@@ -610,6 +612,8 @@ export function ProfileView({
               prefs.badgeShowcaseVisible ? <div key={b.id} className="w-full lg:col-span-full"><BadgeShowcase userId={profile.id} theme={t} /></div> : null
             ) : b.kind === "widget:youtube" ? (
               profile.username ? <div key={b.id} className="w-full lg:col-span-full"><ProfileYouTubeCard handle={profile.username} theme={t} cardStyle={styleFor(b.kind)} /></div> : null
+            ) : b.kind === "feedback" ? (
+              profile.username && b.value ? <div key={b.id} className="w-full lg:col-span-full"><ProfileFeedback handle={profile.username} space={free ? "alias" : "root"} formId={b.value} style={styleFor(b.kind)} /></div> : null
             ) : b.kind === "live" ? (
               profile.username ? <div key={b.id} className="w-full lg:col-span-full"><ProfileIntegrations handle={profile.username} theme={t} buttonStyle={styleFor(b.kind)} provider={b.value} stats={b.stats} /></div> : null
             ) : b.kind === "widget:reach" ? (

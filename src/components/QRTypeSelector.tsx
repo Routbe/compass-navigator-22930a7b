@@ -12,6 +12,7 @@ import {
   MapPin,
   MessageCircle,
   MessageSquare,
+  MessageSquareHeart,
   Music,
   Settings2,
   Share2,
@@ -41,6 +42,7 @@ export type QRType =
   | "social"
   | "maps"
   | "meeting"
+  | "feedback"
   | PaymentId;
 
 export interface QRTypeOption {
@@ -68,6 +70,7 @@ export const typeIcons: Partial<Record<QRType, typeof Link2>> = {
   wifi: Wifi,
   text: TypeIcon,
   event: Calendar,
+  feedback: MessageSquareHeart,
 };
 
 export const descKeyOf = (id: QRType) =>
@@ -90,6 +93,7 @@ export const baseQrTypes: QRTypeOption[] = [
   { id: "social", label: "Social profile hub", labelKey: "type.social" },
   { id: "maps", label: "Map location", labelKey: "type.maps" },
   { id: "meeting", label: "Meeting link", labelKey: "type.meeting" },
+  { id: "feedback", label: "Feedback & Reviews", labelKey: "type.feedback" },
 ];
 
 const byId = (id: QRType) => baseQrTypes.find((t) => t.id === id)!;
@@ -123,7 +127,7 @@ export const qrTypeCategories: QRTypeCategory[] = [
     labelKey: "cat.contact",
     label: "Contact & Messaging",
     Icon: MessageSquare,
-    types: [byId("email"), byId("sms"), byId("whatsapp"), byId("vcard"), byId("meeting")],
+    types: [byId("email"), byId("sms"), byId("whatsapp"), byId("vcard"), byId("meeting"), byId("feedback")],
   },
   {
     id: "file",

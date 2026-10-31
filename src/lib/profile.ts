@@ -823,6 +823,7 @@ export const BLOCK_KINDS: {
     category: "contact" as const,
     placeholder: "Neem contact op",
   },
+  { kind: "feedback", label: "Feedback-kaart", category: "contact", placeholder: "" },
   {
     kind: "live_poll",
     label: "Interactieve poll",
@@ -927,6 +928,7 @@ export const BLOCK_TABS: {
     kinds: [
       "booking_request",
       "contact_form",
+      "feedback",
       "event_list",
       "live_poll",
       "faq_accordion",
@@ -1263,6 +1265,7 @@ export function blockHref(block: ProfileBlock): string {
     case "media_embed":
     case "social_feed":
     case "contact_form":
+    case "feedback":
     case "live_poll":
     case "faq_accordion":
     case "vcard":
@@ -1288,6 +1291,7 @@ export function blockHref(block: ProfileBlock): string {
 
 /** Blokken die als interactieve widget renderen i.p.v. als gewone linkknop. */
 export const isWidgetBlock = (kind: string) =>
+  kind === "feedback" ||
   kind === "newsletter" ||
   kind === "calendar" ||
   kind === "booking_request" ||

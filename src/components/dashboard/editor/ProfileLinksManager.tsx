@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { LiveBlockSettings } from "@/components/studio/LiveBlockSettings";
 import { YouTubeStudioCard } from "@/components/studio/YouTubeStudioCard";
+import { FeedbackPicker } from "@/components/studio/FeedbackPanel";
 import { Switch } from "@/components/ui/switch";
 import { SocialPlatformIcon } from "@/lib/social-icons";
 import { SocialHandleInput } from "@/components/SocialHandleInput";
@@ -261,6 +262,8 @@ export function ProfileLinksManager({
                       <Input aria-label={t("studio.links.label")} value={b.label} maxLength={100} onChange={(e) => patch(b.id, { label: e.target.value })} />
                       {b.kind === "widget:youtube" && <YouTubeStudioCard />}
                     </>
+                  ) : b.kind === "feedback" ? (
+                    <FeedbackPicker value={b.value} onChange={value => patch(b.id, { value })} />
                   ) : b.kind === "live" ? (
                     <LiveBlockSettings
                       provider={b.value}
