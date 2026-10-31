@@ -452,7 +452,7 @@ export function ProfileView({
         {profile.username && <CustomStatusPill handle={profile.username} theme={t} />}
         {profile.username && <NowPlaying handle={profile.username} theme={t} />}
         {profile.username && <ProfileIntegrations handle={profile.username} theme={t} buttonStyle={styleFor("live")} exclude={liveProviders} />}
-        {profile.username && usesSectionFallback(profile.blocks, "widget:youtube") && <ProfileYouTubeCard handle={profile.username} theme={t} />}
+        {profile.username && usesSectionFallback(profile.blocks, "widget:youtube") && <ProfileYouTubeCard handle={profile.username} theme={t} cardStyle={styleFor("widget:youtube")} />}
         {profile.username && <TipJarButton handle={profile.username} theme={t} />}
         <ProfilePassport handle={profile.username} theme={t} />
         {profile.username && prefs.guestbookEnabled && usesSectionFallback(profile.blocks, "widget:guestbook") && <ProfileGuestbook handle={profile.username} theme={t} />}
