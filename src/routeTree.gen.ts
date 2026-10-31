@@ -47,6 +47,7 @@ import { Route as WifiQrRouteImport } from './routes/wifi-qr'
 import { Route as UsernameSlugRouteImport } from './routes/$username_.$slug'
 import { Route as UsernameBookingRouteImport } from './routes/$username_.booking'
 import { Route as UsernameDonateRouteImport } from './routes/$username_.donate'
+import { Route as UsernameLiveRouteImport } from './routes/$username_.live'
 import { Route as UsernameTipRouteImport } from './routes/$username_.tip'
 import { Route as DotwellKnownAtprotoDidRouteImport } from './routes/[.]well-known.atproto-did'
 import { Route as DotwellKnownJwksDotjsonRouteImport } from './routes/[.]well-known.jwks[.]json'
@@ -130,6 +131,7 @@ import { Route as AuthMastodonCallbackRouteImport } from './routes/auth_.mastodo
 import { Route as RUAliasRouteImport } from './routes/r.u.$alias'
 import { Route as UUsernameSlugRouteImport } from './routes/u.$username_.$slug'
 import { Route as UUsernameDonateRouteImport } from './routes/u.$username_.donate'
+import { Route as UUsernameLiveRouteImport } from './routes/u.$username_.live'
 import { Route as UUsernameTipRouteImport } from './routes/u.$username_.tip'
 import { Route as AuthenticatedConsoleAppsIndexRouteImport } from './routes/_authenticated/console.apps.index'
 import { Route as AuthenticatedConsoleAppsAppIdRouteImport } from './routes/_authenticated/console.apps.$appId'
@@ -175,6 +177,7 @@ import { Route as ApiPublicWeatherWebhookTokenRouteImport } from './routes/api_.
 import { Route as ApiPublicWebhooksBankingRouteImport } from './routes/api_.public.webhooks.banking'
 import { Route as ApiPublicYoutubeCallbackRouteImport } from './routes/api_.public.youtube.callback'
 import { Route as ApiPublicYoutubeCardRouteImport } from './routes/api_.public.youtube.card'
+import { Route as ApiPublicYoutubePushRouteImport } from './routes/api_.public.youtube.push'
 import { Route as ApiUserVaultExportRouteImport } from './routes/api_.user.vault.export'
 import { Route as AuthenticatedConsoleAppsAppIdIndexRouteImport } from './routes/_authenticated/console.apps.$appId.index'
 import { Route as AuthenticatedConsoleAppsAppIdAdvancedRouteImport } from './routes/_authenticated/console.apps.$appId.advanced'
@@ -380,6 +383,11 @@ const UsernameBookingRoute = UsernameBookingRouteImport.update({
 const UsernameDonateRoute = UsernameDonateRouteImport.update({
   id: '/$username_/donate',
   path: '/$username/donate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsernameLiveRoute = UsernameLiveRouteImport.update({
+  id: '/$username_/live',
+  path: '/$username/live',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsernameTipRoute = UsernameTipRouteImport.update({
@@ -819,6 +827,11 @@ const UUsernameDonateRoute = UUsernameDonateRouteImport.update({
   path: '/u/$username/donate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UUsernameLiveRoute = UUsernameLiveRouteImport.update({
+  id: '/u/$username_/live',
+  path: '/u/$username/live',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UUsernameTipRoute = UUsernameTipRouteImport.update({
   id: '/u/$username_/tip',
   path: '/u/$username/tip',
@@ -1073,6 +1086,11 @@ const ApiPublicYoutubeCardRoute = ApiPublicYoutubeCardRouteImport.update({
   path: '/api/public/youtube/card',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicYoutubePushRoute = ApiPublicYoutubePushRouteImport.update({
+  id: '/api_/public/youtube/push',
+  path: '/api/public/youtube/push',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiUserVaultExportRoute = ApiUserVaultExportRouteImport.update({
   id: '/api_/user/vault/export',
   path: '/api/user/vault/export',
@@ -1213,6 +1231,7 @@ export interface FileRoutesByFullPath {
   '/$username/$slug': typeof UsernameSlugRoute
   '/$username/booking': typeof UsernameBookingRoute
   '/$username/donate': typeof UsernameDonateRoute
+  '/$username/live': typeof UsernameLiveRoute
   '/$username/tip': typeof UsernameTipRoute
   '/.well-known/atproto-did': typeof DotwellKnownAtprotoDidRoute
   '/.well-known/jwks.json': typeof DotwellKnownJwksDotjsonRoute
@@ -1294,6 +1313,7 @@ export interface FileRoutesByFullPath {
   '/r/u/$alias': typeof RUAliasRoute
   '/u/$username/$slug': typeof UUsernameSlugRoute
   '/u/$username/donate': typeof UUsernameDonateRoute
+  '/u/$username/live': typeof UUsernameLiveRoute
   '/u/$username/tip': typeof UUsernameTipRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/console/': typeof AuthenticatedConsoleIndexRoute
@@ -1340,6 +1360,7 @@ export interface FileRoutesByFullPath {
   '/api/public/webhooks/banking': typeof ApiPublicWebhooksBankingRoute
   '/api/public/youtube/callback': typeof ApiPublicYoutubeCallbackRoute
   '/api/public/youtube/card': typeof ApiPublicYoutubeCardRoute
+  '/api/public/youtube/push': typeof ApiPublicYoutubePushRoute
   '/api/user/vault/export': typeof ApiUserVaultExportRoute
   '/console/apps/': typeof AuthenticatedConsoleAppsIndexRoute
   '/console/apps/$appId/advanced': typeof AuthenticatedConsoleAppsAppIdAdvancedRoute
@@ -1396,6 +1417,7 @@ export interface FileRoutesByTo {
   '/$username/$slug': typeof UsernameSlugRoute
   '/$username/booking': typeof UsernameBookingRoute
   '/$username/donate': typeof UsernameDonateRoute
+  '/$username/live': typeof UsernameLiveRoute
   '/$username/tip': typeof UsernameTipRoute
   '/.well-known/atproto-did': typeof DotwellKnownAtprotoDidRoute
   '/.well-known/jwks.json': typeof DotwellKnownJwksDotjsonRoute
@@ -1474,6 +1496,7 @@ export interface FileRoutesByTo {
   '/r/u/$alias': typeof RUAliasRoute
   '/u/$username/$slug': typeof UUsernameSlugRoute
   '/u/$username/donate': typeof UUsernameDonateRoute
+  '/u/$username/live': typeof UUsernameLiveRoute
   '/u/$username/tip': typeof UUsernameTipRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/console': typeof AuthenticatedConsoleIndexRoute
@@ -1519,6 +1542,7 @@ export interface FileRoutesByTo {
   '/api/public/webhooks/banking': typeof ApiPublicWebhooksBankingRoute
   '/api/public/youtube/callback': typeof ApiPublicYoutubeCallbackRoute
   '/api/public/youtube/card': typeof ApiPublicYoutubeCardRoute
+  '/api/public/youtube/push': typeof ApiPublicYoutubePushRoute
   '/api/user/vault/export': typeof ApiUserVaultExportRoute
   '/console/apps': typeof AuthenticatedConsoleAppsIndexRoute
   '/console/apps/$appId/advanced': typeof AuthenticatedConsoleAppsAppIdAdvancedRoute
@@ -1578,6 +1602,7 @@ export interface FileRoutesById {
   '/$username_/$slug': typeof UsernameSlugRoute
   '/$username_/booking': typeof UsernameBookingRoute
   '/$username_/donate': typeof UsernameDonateRoute
+  '/$username_/live': typeof UsernameLiveRoute
   '/$username_/tip': typeof UsernameTipRoute
   '/.well-known/atproto-did': typeof DotwellKnownAtprotoDidRoute
   '/.well-known/jwks.json': typeof DotwellKnownJwksDotjsonRoute
@@ -1659,6 +1684,7 @@ export interface FileRoutesById {
   '/r/u/$alias': typeof RUAliasRoute
   '/u/$username_/$slug': typeof UUsernameSlugRoute
   '/u/$username_/donate': typeof UUsernameDonateRoute
+  '/u/$username_/live': typeof UUsernameLiveRoute
   '/u/$username_/tip': typeof UUsernameTipRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/console/': typeof AuthenticatedConsoleIndexRoute
@@ -1705,6 +1731,7 @@ export interface FileRoutesById {
   '/api_/public/webhooks/banking': typeof ApiPublicWebhooksBankingRoute
   '/api_/public/youtube/callback': typeof ApiPublicYoutubeCallbackRoute
   '/api_/public/youtube/card': typeof ApiPublicYoutubeCardRoute
+  '/api_/public/youtube/push': typeof ApiPublicYoutubePushRoute
   '/api_/user/vault/export': typeof ApiUserVaultExportRoute
   '/_authenticated/console/apps/': typeof AuthenticatedConsoleAppsIndexRoute
   '/_authenticated/console/apps/$appId/advanced': typeof AuthenticatedConsoleAppsAppIdAdvancedRoute
@@ -1764,6 +1791,7 @@ export interface FileRouteTypes {
     | '/$username/$slug'
     | '/$username/booking'
     | '/$username/donate'
+    | '/$username/live'
     | '/$username/tip'
     | '/.well-known/atproto-did'
     | '/.well-known/jwks.json'
@@ -1845,6 +1873,7 @@ export interface FileRouteTypes {
     | '/r/u/$alias'
     | '/u/$username/$slug'
     | '/u/$username/donate'
+    | '/u/$username/live'
     | '/u/$username/tip'
     | '/admin/'
     | '/console/'
@@ -1891,6 +1920,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/banking'
     | '/api/public/youtube/callback'
     | '/api/public/youtube/card'
+    | '/api/public/youtube/push'
     | '/api/user/vault/export'
     | '/console/apps/'
     | '/console/apps/$appId/advanced'
@@ -1947,6 +1977,7 @@ export interface FileRouteTypes {
     | '/$username/$slug'
     | '/$username/booking'
     | '/$username/donate'
+    | '/$username/live'
     | '/$username/tip'
     | '/.well-known/atproto-did'
     | '/.well-known/jwks.json'
@@ -2025,6 +2056,7 @@ export interface FileRouteTypes {
     | '/r/u/$alias'
     | '/u/$username/$slug'
     | '/u/$username/donate'
+    | '/u/$username/live'
     | '/u/$username/tip'
     | '/admin'
     | '/console'
@@ -2070,6 +2102,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/banking'
     | '/api/public/youtube/callback'
     | '/api/public/youtube/card'
+    | '/api/public/youtube/push'
     | '/api/user/vault/export'
     | '/console/apps'
     | '/console/apps/$appId/advanced'
@@ -2128,6 +2161,7 @@ export interface FileRouteTypes {
     | '/$username_/$slug'
     | '/$username_/booking'
     | '/$username_/donate'
+    | '/$username_/live'
     | '/$username_/tip'
     | '/.well-known/atproto-did'
     | '/.well-known/jwks.json'
@@ -2209,6 +2243,7 @@ export interface FileRouteTypes {
     | '/r/u/$alias'
     | '/u/$username_/$slug'
     | '/u/$username_/donate'
+    | '/u/$username_/live'
     | '/u/$username_/tip'
     | '/_authenticated/admin/'
     | '/_authenticated/console/'
@@ -2255,6 +2290,7 @@ export interface FileRouteTypes {
     | '/api_/public/webhooks/banking'
     | '/api_/public/youtube/callback'
     | '/api_/public/youtube/card'
+    | '/api_/public/youtube/push'
     | '/api_/user/vault/export'
     | '/_authenticated/console/apps/'
     | '/_authenticated/console/apps/$appId/advanced'
@@ -2314,6 +2350,7 @@ export interface RootRouteChildren {
   UsernameSlugRoute: typeof UsernameSlugRoute
   UsernameBookingRoute: typeof UsernameBookingRoute
   UsernameDonateRoute: typeof UsernameDonateRoute
+  UsernameLiveRoute: typeof UsernameLiveRoute
   UsernameTipRoute: typeof UsernameTipRoute
   DotwellKnownAtprotoDidRoute: typeof DotwellKnownAtprotoDidRoute
   DotwellKnownJwksDotjsonRoute: typeof DotwellKnownJwksDotjsonRoute
@@ -2360,6 +2397,7 @@ export interface RootRouteChildren {
   RUAliasRoute: typeof RUAliasRoute
   UUsernameSlugRoute: typeof UUsernameSlugRoute
   UUsernameDonateRoute: typeof UUsernameDonateRoute
+  UUsernameLiveRoute: typeof UUsernameLiveRoute
   UUsernameTipRoute: typeof UUsernameTipRoute
   ApiPublicAuthProvidersRoute: typeof ApiPublicAuthProvidersRoute
   ApiPublicBadgeHandleRoute: typeof ApiPublicBadgeHandleRoute
@@ -2400,6 +2438,7 @@ export interface RootRouteChildren {
   ApiPublicWebhooksBankingRoute: typeof ApiPublicWebhooksBankingRoute
   ApiPublicYoutubeCallbackRoute: typeof ApiPublicYoutubeCallbackRoute
   ApiPublicYoutubeCardRoute: typeof ApiPublicYoutubeCardRoute
+  ApiPublicYoutubePushRoute: typeof ApiPublicYoutubePushRoute
   ApiUserVaultExportRoute: typeof ApiUserVaultExportRoute
   ApiPublicBookingsIdActionRoute: typeof ApiPublicBookingsIdActionRoute
 }
@@ -2670,6 +2709,13 @@ declare module '@tanstack/react-router' {
       path: '/$username/donate'
       fullPath: '/$username/donate'
       preLoaderRoute: typeof UsernameDonateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$username_/live': {
+      id: '/$username_/live'
+      path: '/$username/live'
+      fullPath: '/$username/live'
+      preLoaderRoute: typeof UsernameLiveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$username_/tip': {
@@ -3253,6 +3299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameDonateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$username_/live': {
+      id: '/u/$username_/live'
+      path: '/u/$username/live'
+      fullPath: '/u/$username/live'
+      preLoaderRoute: typeof UUsernameLiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$username_/tip': {
       id: '/u/$username_/tip'
       path: '/u/$username/tip'
@@ -3566,6 +3619,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/youtube/card'
       fullPath: '/api/public/youtube/card'
       preLoaderRoute: typeof ApiPublicYoutubeCardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api_/public/youtube/push': {
+      id: '/api_/public/youtube/push'
+      path: '/api/public/youtube/push'
+      fullPath: '/api/public/youtube/push'
+      preLoaderRoute: typeof ApiPublicYoutubePushRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api_/user/vault/export': {
@@ -3940,6 +4000,7 @@ const rootRouteChildren: RootRouteChildren = {
   UsernameSlugRoute: UsernameSlugRoute,
   UsernameBookingRoute: UsernameBookingRoute,
   UsernameDonateRoute: UsernameDonateRoute,
+  UsernameLiveRoute: UsernameLiveRoute,
   UsernameTipRoute: UsernameTipRoute,
   DotwellKnownAtprotoDidRoute: DotwellKnownAtprotoDidRoute,
   DotwellKnownJwksDotjsonRoute: DotwellKnownJwksDotjsonRoute,
@@ -3986,6 +4047,7 @@ const rootRouteChildren: RootRouteChildren = {
   RUAliasRoute: RUAliasRoute,
   UUsernameSlugRoute: UUsernameSlugRoute,
   UUsernameDonateRoute: UUsernameDonateRoute,
+  UUsernameLiveRoute: UUsernameLiveRoute,
   UUsernameTipRoute: UUsernameTipRoute,
   ApiPublicAuthProvidersRoute: ApiPublicAuthProvidersRoute,
   ApiPublicBadgeHandleRoute: ApiPublicBadgeHandleRoute,
@@ -4027,6 +4089,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWebhooksBankingRoute: ApiPublicWebhooksBankingRoute,
   ApiPublicYoutubeCallbackRoute: ApiPublicYoutubeCallbackRoute,
   ApiPublicYoutubeCardRoute: ApiPublicYoutubeCardRoute,
+  ApiPublicYoutubePushRoute: ApiPublicYoutubePushRoute,
   ApiUserVaultExportRoute: ApiUserVaultExportRoute,
   ApiPublicBookingsIdActionRoute: ApiPublicBookingsIdActionRoute,
 }
