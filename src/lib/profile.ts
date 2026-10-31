@@ -823,7 +823,7 @@ export const BLOCK_KINDS: {
     category: "contact" as const,
     placeholder: "Neem contact op",
   },
-  { kind: "feedback", label: "Feedback-kaart", category: "contact", placeholder: "" },
+  { kind: "feedback", label: "Feedback-kaart", category: "contact" as const, placeholder: "" },
   {
     kind: "live_poll",
     label: "Interactieve poll",
